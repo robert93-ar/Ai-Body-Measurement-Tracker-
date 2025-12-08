@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Body Measurements (Demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .card {
+      background: #020617;
+      border-radius: 0.75rem;
+      border: 1px solid #1f2937;
+      padding: 0.9rem 1rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    label {
+      margin-bottom: 0.15rem;
+    }
+    input[type="number"],
+    input[type="file"] {
+      border-radius: 0.6rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 0.4rem 0.55rem;
+      font-size: 0.85rem;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      background: #22c55e;
+      color: #022c22;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.4rem;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .hint {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+    .results {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .error {
+      color: #f97373;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI Body Measurements (Demo)</h1>
+
+  <div class="card">
+    <p class="hint">
+      This page sends your photos to your own server, which returns estimated measurements.
+      Right now it uses demo math, not real AI. Later you can plug in an actual model or API.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.1rem; margin-top:0;">Inputs</h2>
+    <div class="form-row">
+      <label for="height">Height</label>
+      <input type="number" id="height" placeholder="cm or in">
+    </div>
+    <div class="form-row">
+      <label for="weight">Weight</label>
+      <input type="number" id="weight" placeholder="kg or lb">
+    </div>
+
+    <p class="hint">Upload front, side, back, and 45° photos (front + side required).</p>
+
+    <div class="form-row">
+      <label for="front">Front photo</label>
+      <input type="file" id="front" accept="image/*">
+    </div>
+    <div class="form-row">
+      <label for="side">Side photo</label>
+      <input type="file" id="side" accept="image/*">
+    </div>
+    <div class="form-row">
+      <label for="back">Back photo</label>
+      <input type="file" id="back" accept="image/*">
+    </div>
+    <div class="form-row">
+      <label for="angle">45° photo</label>
+      <input type="file" id="angle" accept="image/*">
+    </div>
+
+    <button id="analyze">Analyze Photos</button>
+    <p id="status" class="hint"></p>
+    <p id="error" class="error"></p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.1rem; margin-top:0;">Results</h2>
+    <div id="results" class="results">
+      No results yet.
+    </div>
+  </div>
+
+  <script>
+    // TEMP: We'll fill this in once Render gives you your API URL
+    const API_URL = "https://YOUR-RENDER-URL.onrender.com/api/measure";
+
+    const btn = document.getElementById("analyze");
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    const resultsEl = document.getElementById("results");
+
+    btn.addEventListener("click", async () => {
+      errorEl.textContent = "";
+      statusEl.textContent = "Uploading and analyzing...";
+      resultsEl.textContent = "";
+
+      const height = document.getElementById("height").value;
+      const weight = document.getElementById("weight").value;
+
+      const front = document.getElementById("front").files[0];
+      const side = document.getElementById("side").files[0];
+      const back = document.getElementById("back").files[0];
+      const angle = document.getElementById("angle").files[0];
+
+      if (!front || !side) {
+        errorEl.textContent = "Please upload at least front and side photos.";
+        statusEl.textContent = "";
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("height", height);
+        formData.append("weight", weight);
+        formData.append("front", front);
+        formData.append("side", side);
+        if (back) formData.append("back", back);
+        if (angle) formData.append("angle", angle);
+
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(text || "Server error");
+        }
+
+        const data = await resp.json();
+        if (!data.ok) {
+          throw new Error(data.error || "Measurement failed");
+        }
+
+        statusEl.textContent = "Done.";
+        const unit = data.unit || "cm";
+
+        resultsEl.innerHTML = `
+          <strong>Measurements (approx.):</strong><br>
+          Chest: ${data.chest} ${unit}<br>
+          Waist: ${data.waist} ${unit}<br>
+          Hips: ${data.hips} ${unit}<br>
+          Thigh: ${data.thigh} ${unit}<br>
+          Arm: ${data.arm} ${unit}<br>
+          <br>
+          Confidence: ${(data.confidence * 100).toFixed(0)}%<br>
+          <span class="hint">${data.notes || ""}</span>
+        `;
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = "Error: " + err.message;
+        statusEl.textContent = "";
+        resultsEl.textContent = "No results.";
+      }
+    });
+  </script>
+</body>
+</html>
