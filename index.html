@@ -185,31 +185,35 @@
     svg#avatar-svg {
       width: 120px;
       height: 190px;
+      animation: avatar-breathe 3s ease-in-out infinite;
     }
+
+    @keyframes avatar-breathe {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-2px); }
+    }
+
     .avatar-outline {
       fill: none;
       stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
     .avatar-neutral .avatar-outline { stroke: #22c55e; }
     .avatar-male    .avatar-outline { stroke: #38bdf8; }
     .avatar-female  .avatar-outline { stroke: #fb7185; }
 
-    #avatar-shoulders, #avatar-waist, #avatar-hips, #avatar-legs {
+    #avatar-shoulders,
+    #avatar-waist,
+    #avatar-hips,
+    #avatar-legs {
       transform-box: fill-box;
       transform-origin: center;
     }
-    #avatar-shoulders {
-      transform: scaleX(var(--avatar-shoulder-scale));
-    }
-    #avatar-waist {
-      transform: scaleX(var(--avatar-waist-scale));
-    }
-    #avatar-hips {
-      transform: scaleX(var(--avatar-hip-scale));
-    }
-    #avatar-legs {
-      transform: scaleX(var(--avatar-leg-scale));
-    }
+    #avatar-shoulders { transform: scaleX(var(--avatar-shoulder-scale)); }
+    #avatar-waist     { transform: scaleX(var(--avatar-waist-scale)); }
+    #avatar-hips      { transform: scaleX(var(--avatar-hip-scale)); }
+    #avatar-legs      { transform: scaleX(var(--avatar-leg-scale)); }
 
     .avatar-stats {
       font-size: 0.8rem;
@@ -235,12 +239,13 @@
     .avatar-label.left::before  { left: 100%; margin-left: 2px; }
     .avatar-label.right::before { right:100%; margin-right:2px; }
 
-    #label-shoulders { top: 18px; }
-    #label-chest     { top: 54px; }
-    #label-waist     { top: 90px; }
-    #label-hips      { top: 70px; }
-    #label-thighs    { top: 115px; }
-    #label-calves    { top: 145px; }
+    /* Label positions lined up with anatomy */
+    #label-shoulders { top: 20px; }  /* mid-shoulder */
+    #label-chest     { top: 52px; }  /* mid-chest */
+    #label-waist     { top: 88px; }  /* narrowest point */
+    #label-hips      { top: 72px; }  /* widest hip area */
+    #label-thighs    { top: 116px; } /* upper thigh */
+    #label-calves    { top: 146px; } /* mid-calf   */
 
     /* FORMS */
     .form-grid {
@@ -279,12 +284,13 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
     th, td {
-      padding: 0.4rem 0.25rem;
+      padding: 0.35rem 0.25rem;
       border-bottom: 1px solid #111827;
       text-align: left;
+      white-space: nowrap;
     }
     tbody tr { cursor: pointer; }
     tbody tr:hover { background: #020617; }
@@ -293,6 +299,7 @@
       color: #6b7280;
       padding: 0.6rem;
       cursor: default;
+      white-space: normal;
     }
 
     /* DETAIL VIEW */
@@ -397,41 +404,45 @@
             <!-- shoulders / upper torso -->
             <g id="avatar-shoulders">
               <path class="avatar-outline"
-                d="M25 33
-                   Q40 28 55 33
-                   L55 50
-                   Q40 55 25 50 Z" />
+                d="M24 33
+                   Q40 27 56 33
+                   L56 50
+                   Q40 55 24 50 Z" />
             </g>
 
-            <!-- waist / mid torso -->
+            <!-- chest / waist -->
             <g id="avatar-waist">
               <path class="avatar-outline"
-                d="M28 50
-                   Q40 47 52 50
-                   L50 75
-                   Q40 78 30 75 Z" />
+                d="M27 50
+                   Q40 47 53 50
+                   L51 75
+                   Q40 80 29 75 Z" />
             </g>
 
             <!-- hips / pelvis -->
             <g id="avatar-hips">
               <path class="avatar-outline"
-                d="M30 75
-                   Q40 80 50 75
-                   L52 95
-                   Q40 100 28 95 Z" />
+                d="M29 75
+                   Q40 82 51 75
+                   L53 95
+                   Q40 102 27 95 Z" />
             </g>
 
             <!-- legs -->
             <g id="avatar-legs">
               <path class="avatar-outline"
-                d="M32 95 L35 135 L33 175
-                   M48 95 L45 135 L47 175" />
+                d="M32 95
+                   L34 135
+                   Q35 150 34 170
+                   M48 95
+                   L46 135
+                   Q45 150 46 170" />
             </g>
 
             <!-- arms -->
             <path class="avatar-outline"
-              d="M25 36 L18 65
-                 M55 36 L62 65" />
+              d="M24 34 L17 65
+                 M56 34 L63 65" />
           </svg>
 
           <!-- body-map labels -->
@@ -478,51 +489,51 @@
             <input type="text" id="scan-time" placeholder="e.g. 09:30 AM" />
           </div>
           <div class="form-row">
-            <label for="scan-weight">Weight</label>
-            <input type="number" id="scan-weight" step="0.1" placeholder="lbs or kg" />
+            <label for="scan-weight">Weight (lb)</label>
+            <input type="number" id="scan-weight" step="0.1" placeholder="lb" />
           </div>
           <div class="form-row">
             <label for="scan-bodyfat">Body fat %</label>
             <input type="number" id="scan-bodyfat" step="0.1" placeholder="optional" />
           </div>
           <div class="form-row">
-            <label for="scan-muscle">Muscle mass</label>
+            <label for="scan-muscle">Muscle mass (lb)</label>
             <input type="number" id="scan-muscle" step="0.1" placeholder="optional" />
           </div>
         </div>
 
-        <h3>Measurements</h3>
+        <h3>Measurements (inches)</h3>
         <p class="hint">
           You can fill these manually from tape/Evolt or let the AI suggest values from your photos.
         </p>
         <div class="form-grid">
           <div class="form-row">
             <label for="measure-chest">Chest</label>
-            <input type="number" id="measure-chest" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-chest" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-shoulders">Shoulders</label>
-            <input type="number" id="measure-shoulders" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-shoulders" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-waist">Waist</label>
-            <input type="number" id="measure-waist" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-waist" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-hips">Hips</label>
-            <input type="number" id="measure-hips" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-hips" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-arms">Arms</label>
-            <input type="number" id="measure-arms" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-arms" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-thighs">Thighs</label>
-            <input type="number" id="measure-thighs" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-thighs" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="measure-calves">Calves</label>
-            <input type="number" id="measure-calves" step="0.1" placeholder="in / cm" />
+            <input type="number" id="measure-calves" step="0.1" placeholder="in" />
           </div>
         </div>
 
@@ -576,9 +587,16 @@
           <thead>
           <tr>
             <th>Date</th>
-            <th>Weight</th>
-            <th>Waist</th>
-            <th>Body fat</th>
+            <th>Weight (lb)</th>
+            <th>Chest (in)</th>
+            <th>Shoulders (in)</th>
+            <th>Waist (in)</th>
+            <th>Hips (in)</th>
+            <th>Arms (in)</th>
+            <th>Thighs (in)</th>
+            <th>Calves (in)</th>
+            <th>Body fat %</th>
+            <th>Muscle (lb)</th>
             <th>Notes</th>
           </tr>
           </thead>
@@ -634,17 +652,10 @@
       </div>
 
       <form id="profile-form">
-        <div class="form-row">
-          <label for="profile-units">Units</label>
-          <select id="profile-units">
-            <option value="metric">Metric (kg, cm)</option>
-            <option value="imperial">Imperial (lb, in)</option>
-          </select>
-        </div>
         <div class="form-grid">
           <div class="form-row">
-            <label for="profile-height">Height</label>
-            <input type="number" id="profile-height" step="0.1" placeholder="cm or in" />
+            <label for="profile-height">Height (inches)</label>
+            <input type="number" id="profile-height" step="0.1" placeholder="in" />
           </div>
           <div class="form-row">
             <label for="profile-age">Age</label>
@@ -661,7 +672,7 @@
         </div>
         <div class="form-row">
           <label for="profile-goal">Goal (optional)</label>
-          <input type="text" id="profile-goal" placeholder="Example: Lean 190 lbs with visible abs" />
+          <input type="text" id="profile-goal" placeholder="Example: Lean 190 lb with visible abs" />
         </div>
         <button type="submit" class="primary">Save Profile</button>
       </form>
@@ -670,6 +681,8 @@
       <p class="hint">
         This app tracks numbers and photos, not your worth. If tracking ever makes you feel worse,
         pause the data and focus on habits, sleep, and mental health first.
+        AI-generated measurements are estimates and may not be perfectly accurate, so always treat
+        them as approximations and double-check with a tape measure if precision matters.
       </p>
     </section>
   </main>
@@ -698,11 +711,12 @@
 
 <script>
   const API_URL = "https://ai-body-measurement-tracker.onrender.com/api/measure";
-  const STORAGE_SCANS = "bodyscan_entries_v3";
-  const STORAGE_PROFILE = "bodyscan_profile_v1";
+
+  const STORAGE_SCANS = "bodyscan_entries_v4";
+  const STORAGE_PROFILE = "bodyscan_profile_imperial_v1";
 
   let scans = [];
-  let profile = { units: "metric", height: null, age: null, sex: "", goal: "" };
+  let profile = { heightIn: null, age: null, sex: "", goal: "" };
 
   function loadData() {
     const savedScans = localStorage.getItem(STORAGE_SCANS);
@@ -725,14 +739,9 @@
     return { text: `${arrow} ${Math.abs(rounded)}%`, cls };
   }
 
-  function computeBMI(weight, height, units) {
-    if (!weight || !height) return null;
-    if (units === "metric") {
-      const m = height / 100;
-      return weight / (m * m);
-    } else {
-      return (703 * weight) / (height * height);
-    }
+  function computeBMI(weightLb, heightIn) {
+    if (!weightLb || !heightIn) return null;
+    return (703 * weightLb) / (heightIn * heightIn);
   }
 
   function shortNotes(notes) {
@@ -751,14 +760,14 @@
   }
 
   function updateAvatar(measurements) {
-    const units = profile.units || "metric";
-    const unitLabel = units === "metric" ? "cm" : "in";
     const svg = document.getElementById("avatar-svg");
 
     svg.classList.remove("avatar-neutral", "avatar-male", "avatar-female");
     if (profile.sex === "male") svg.classList.add("avatar-male");
     else if (profile.sex === "female") svg.classList.add("avatar-female");
     else svg.classList.add("avatar-neutral");
+
+    const unitLabel = "in";
 
     const setLabel = (id, name, value) => {
       const el = document.getElementById(id);
@@ -787,15 +796,9 @@
     const thighs    = measurements.thighs;
     const calves    = measurements.calves;
 
-    // Baseline circumferences (rough averages)
     const base = (name) => {
-      if (units === "metric") {
-        const map = { shoulders:120, chest:105, waist:90, hips:105, thighs:60, calves:40 };
-        return map[name];
-      } else {
-        const map = { shoulders:47, chest:41, waist:35, hips:41, thighs:24, calves:16 };
-        return map[name];
-      }
+      const map = { shoulders:47, chest:41, waist:35, hips:41, thighs:24, calves:16 };
+      return map[name];
     };
     const clampScale = (val, key) => {
       const b = base(key);
@@ -849,11 +852,10 @@
 
     lastScanText.textContent = `Last scan: ${latest.date}${latest.time ? " · "+latest.time : ""}`;
 
-    const units      = profile.units || "metric";
-    const weightUnit = units === "metric" ? "kg" : "lb";
+    const weightUnit = "lb";
 
-    const bmiLatest = computeBMI(latest.weight, profile.height, units);
-    const bmiPrev   = previous ? computeBMI(previous.weight, profile.height, units) : null;
+    const bmiLatest = computeBMI(latest.weight, profile.heightIn);
+    const bmiPrev   = previous ? computeBMI(previous.weight, profile.heightIn) : null;
 
     const weightDelta = formatDelta(latest.weight, previous?.weight, true);
     const bfDelta     = formatDelta(latest.bodyFat, previous?.bodyFat, true);
@@ -897,28 +899,33 @@
       const tr = document.createElement("tr");
       tr.classList.add("empty-row");
       const td = document.createElement("td");
-      td.colSpan = 5;
+      td.colSpan = 12;
       td.textContent = "No scans yet.";
       tr.appendChild(td);
       tbody.appendChild(tr);
       return;
     }
 
-    const units      = profile.units || "metric";
-    const lengthUnit = units === "metric" ? "cm" : "in";
-    const weightUnit = units === "metric" ? "kg" : "lb";
-
     [...scans]
       .sort((a,b)=>new Date(b.date)-new Date(a.date))
       .forEach(scan=>{
+        const m = scan.measurements || {};
         const tr = document.createElement("tr");
         tr.dataset.id = scan.id;
         tr.innerHTML = `
           <td>${scan.date}</td>
-          <td>${scan.weight != null ? scan.weight+" "+weightUnit : ""}</td>
-          <td>${scan.measurements.waist != null ? scan.measurements.waist+" "+lengthUnit : ""}</td>
-          <td>${scan.bodyFat != null ? scan.bodyFat+" %" : ""}</td>
-          <td>${shortNotes(scan.notes)}</td>`;
+          <td>${scan.weight != null ? scan.weight+" lb" : ""}</td>
+          <td>${m.chest     != null ? m.chest     : ""}</td>
+          <td>${m.shoulders != null ? m.shoulders : ""}</td>
+          <td>${m.waist     != null ? m.waist     : ""}</td>
+          <td>${m.hips      != null ? m.hips      : ""}</td>
+          <td>${m.arms      != null ? m.arms      : ""}</td>
+          <td>${m.thighs    != null ? m.thighs    : ""}</td>
+          <td>${m.calves    != null ? m.calves    : ""}</td>
+          <td>${scan.bodyFat != null ? scan.bodyFat+"%" : ""}</td>
+          <td>${scan.muscle  != null ? scan.muscle+" lb" : ""}</td>
+          <td>${shortNotes(scan.notes)}</td>
+        `;
         tr.addEventListener("click", ()=>showDetail(scan.id));
         tbody.appendChild(tr);
       });
@@ -928,29 +935,25 @@
     const scan = scans.find(s=>s.id===id);
     if (!scan) return;
 
-    const units      = profile.units || "metric";
-    const lengthUnit = units === "metric" ? "cm" : "in";
-    const weightUnit = units === "metric" ? "kg" : "lb";
-
     document.getElementById("section-detail").classList.remove("hidden");
 
-    const bmi = computeBMI(scan.weight, profile.height, units);
+    const bmi = computeBMI(scan.weight, profile.heightIn);
     const summary =
       `${scan.date}${scan.time ? " · "+scan.time : ""} · ` +
-      `${scan.weight != null ? scan.weight+" "+weightUnit : "no weight entered"}` +
+      `${scan.weight != null ? scan.weight+" lb" : "no weight entered"}` +
       `${bmi != null ? " · BMI "+bmi.toFixed(1) : ""}`;
     document.getElementById("detail-summary").textContent = summary;
 
-    const m = scan.measurements;
+    const m = scan.measurements || {};
     const list = document.getElementById("detail-measurements");
     list.innerHTML = `
-      <li>Shoulders: ${m.shoulders != null ? m.shoulders+" "+lengthUnit : "—"}</li>
-      <li>Chest: ${m.chest != null ? m.chest+" "+lengthUnit : "—"}</li>
-      <li>Waist: ${m.waist != null ? m.waist+" "+lengthUnit : "—"}</li>
-      <li>Hips: ${m.hips != null ? m.hips+" "+lengthUnit : "—"}</li>
-      <li>Arms: ${m.arms != null ? m.arms+" "+lengthUnit : "—"}</li>
-      <li>Thighs: ${m.thighs != null ? m.thighs+" "+lengthUnit : "—"}</li>
-      <li>Calves: ${m.calves != null ? m.calves+" "+lengthUnit : "—"}</li>
+      <li>Shoulders: ${m.shoulders != null ? m.shoulders+" in" : "—"}</li>
+      <li>Chest: ${m.chest != null ? m.chest+" in" : "—"}</li>
+      <li>Waist: ${m.waist != null ? m.waist+" in" : "—"}</li>
+      <li>Hips: ${m.hips != null ? m.hips+" in" : "—"}</li>
+      <li>Arms: ${m.arms != null ? m.arms+" in" : "—"}</li>
+      <li>Thighs: ${m.thighs != null ? m.thighs+" in" : "—"}</li>
+      <li>Calves: ${m.calves != null ? m.calves+" in" : "—"}</li>
     `;
 
     document.getElementById("detail-notes").textContent = scan.notes || "—";
@@ -966,8 +969,7 @@
   }
 
   function renderProfile() {
-    document.getElementById("profile-units").value  = profile.units || "metric";
-    document.getElementById("profile-height").value = profile.height ?? "";
+    document.getElementById("profile-height").value = profile.heightIn ?? "";
     document.getElementById("profile-age").value    = profile.age ?? "";
     document.getElementById("profile-sex").value    = profile.sex ?? "";
     document.getElementById("profile-goal").value   = profile.goal ?? "";
@@ -1002,7 +1004,7 @@
     btn.disabled = true;
 
     try {
-      const height = profile.height;
+      const heightIn = profile.heightIn;
       const weight = parseFloat(document.getElementById("scan-weight").value);
 
       const front = document.getElementById("photo-front").files[0];
@@ -1015,14 +1017,14 @@
         btn.disabled = false;
         return;
       }
-      if (!height) {
+      if (!heightIn) {
         aiStatus.textContent = "Add your height in Profile for better estimates.";
       } else {
         aiStatus.textContent = "Sending photos to AI…";
       }
 
       const formData = new FormData();
-      if (height) formData.append("height", height);
+      if (heightIn) formData.append("height", heightIn);
       if (!isNaN(weight)) formData.append("weight", weight);
       formData.append("front", front);
       formData.append("side", side);
@@ -1039,10 +1041,10 @@
       if (data.hips  != null) document.getElementById("measure-hips").value    = data.hips;
       if (data.thigh != null) document.getElementById("measure-thighs").value  = data.thigh;
       if (data.arm   != null) document.getElementById("measure-arms").value    = data.arm;
-      // shoulders & calves can come later from a richer model
+      // shoulders & calves could be added later from a richer model
 
       aiStatus.textContent =
-        `AI filled in some measurements (approx. ${Math.round((data.confidence || 0)*100)}% confidence). Review and adjust if needed.`;
+        `AI filled in some measurements. These are estimates only — review and adjust if needed.`;
     } catch (err) {
       console.error(err);
       aiStatus.textContent = "AI error: "+err.message;
@@ -1116,13 +1118,12 @@
 
   function handleProfileSave(event) {
     event.preventDefault();
-    profile.units = document.getElementById("profile-units").value || "metric";
     const h = parseFloat(document.getElementById("profile-height").value);
     const a = parseInt(document.getElementById("profile-age").value,10);
-    profile.height = isNaN(h) ? null : h;
-    profile.age    = isNaN(a) ? null : a;
-    profile.sex    = document.getElementById("profile-sex").value || "";
-    profile.goal   = document.getElementById("profile-goal").value.trim();
+    profile.heightIn = isNaN(h) ? null : h;
+    profile.age      = isNaN(a) ? null : a;
+    profile.sex      = document.getElementById("profile-sex").value || "";
+    profile.goal     = document.getElementById("profile-goal").value.trim();
     saveProfile();
     alert("Profile saved.");
     renderDashboard();
