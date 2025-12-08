@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --body-scale: 1; /* avatar waist scale */
+      --avatar-waist-scale: 1;
+      --avatar-shoulder-scale: 1;
+      --avatar-hip-scale: 1;
+      --avatar-leg-scale: 1;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -16,10 +19,7 @@
       background: #020617;
       color: #e5e7eb;
     }
-
-    button, input, textarea, select {
-      font: inherit;
-    }
+    button, input, textarea, select { font: inherit; }
 
     .app {
       display: flex;
@@ -43,9 +43,7 @@
       font-size: 1.4rem;
       letter-spacing: 0.08em;
     }
-    header h1 span {
-      color: #22c55e;
-    }
+    header h1 span { color: #22c55e; }
     header p {
       margin: 0.25rem 0 0.5rem;
       font-size: 0.8rem;
@@ -71,12 +69,10 @@
       margin: 0 0 0.5rem;
       font-size: 1.1rem;
     }
-
     .card h3 {
       margin: 0.8rem 0 0.4rem;
       font-size: 0.9rem;
     }
-
     .hint {
       font-size: 0.78rem;
       color: #9ca3af;
@@ -107,9 +103,7 @@
       align-items: center;
       gap: 0.2rem;
     }
-    .primary:active {
-      transform: scale(0.98);
-    }
+    .primary:active { transform: scale(0.98); }
 
     .secondary {
       border: 1px solid #374151;
@@ -120,9 +114,7 @@
       font-size: 0.85rem;
       cursor: pointer;
     }
-    .secondary:active {
-      transform: scale(0.98);
-    }
+    .secondary:active { transform: scale(0.98); }
 
     /* DASHBOARD METRICS */
     .metrics-grid {
@@ -131,7 +123,6 @@
       gap: 0.6rem;
       margin-top: 0.6rem;
     }
-
     .metric-card {
       padding: 0.6rem;
       border-radius: 0.75rem;
@@ -166,23 +157,14 @@
       padding: 0.1rem 0.45rem;
       border-radius: 999px;
     }
-    .delta.up {
-      background: rgba(34, 197, 94, 0.15);
-      color: #22c55e;
-    }
-    .delta.down {
-      background: rgba(248, 113, 113, 0.18);
-      color: #f87171;
-    }
-    .delta.flat {
-      background: rgba(148, 163, 184, 0.18);
-      color: #9ca3af;
-    }
+    .delta.up   { background: rgba(34,197,94,0.15);  color:#22c55e; }
+    .delta.down { background: rgba(248,113,113,0.18); color:#f87171; }
+    .delta.flat { background: rgba(148,163,184,0.18); color:#9ca3af; }
 
     /* AVATAR + BODY MAP */
     .avatar-card {
       display: grid;
-      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
       gap: 0.75rem;
       align-items: center;
       margin-bottom: 0.4rem;
@@ -197,72 +179,43 @@
       border-radius: 0.75rem;
       border: 1px solid #1f2937;
       background: radial-gradient(circle at top, #0f172a, #020617);
-      min-height: 170px;
+      min-height: 190px;
     }
 
-    .avatar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.1rem;
+    svg#avatar-svg {
+      width: 120px;
+      height: 190px;
     }
+    .avatar-outline {
+      fill: none;
+      stroke-width: 2;
+    }
+    .avatar-neutral .avatar-outline { stroke: #22c55e; }
+    .avatar-male    .avatar-outline { stroke: #38bdf8; }
+    .avatar-female  .avatar-outline { stroke: #fb7185; }
 
-    .avatar-head {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #0f172a;
-      border: 2px solid #22c55e;
+    #avatar-shoulders, #avatar-waist, #avatar-hips, #avatar-legs {
+      transform-box: fill-box;
+      transform-origin: center;
     }
-
-    .avatar-body {
-      width: calc(40px * var(--body-scale));
-      height: 90px;
-      border-radius: 24px;
-      background: linear-gradient(to bottom, #16a34a, #22c55e);
-      transition: width 0.25s ease-out;
-      position: relative;
+    #avatar-shoulders {
+      transform: scaleX(var(--avatar-shoulder-scale));
     }
-
-    .avatar-body::before,
-    .avatar-body::after {
-      content: "";
-      position: absolute;
-      top: 12px;
-      width: 10px;
-      height: 42px;
-      border-radius: 999px;
-      background: #16a34a;
+    #avatar-waist {
+      transform: scaleX(var(--avatar-waist-scale));
     }
-    .avatar-body::before { left: -8px; }
-    .avatar-body::after { right: -8px; }
-
-    /* Sex variants */
-    .avatar-neutral .avatar-body {
-      background: linear-gradient(to bottom, #16a34a, #22c55e);
+    #avatar-hips {
+      transform: scaleX(var(--avatar-hip-scale));
     }
-    .avatar-male .avatar-body {
-      background: linear-gradient(to bottom, #22c55e, #16a34a);
-      border-radius: 20px;
-    }
-    .avatar-female .avatar-body {
-      background: linear-gradient(to bottom, #f97316, #fb7185);
-      border-radius: 28px;
-    }
-    .avatar-male .avatar-head {
-      border-color: #22c55e;
-    }
-    .avatar-female .avatar-head {
-      border-color: #fb7185;
+    #avatar-legs {
+      transform: scaleX(var(--avatar-leg-scale));
     }
 
     .avatar-stats {
       font-size: 0.8rem;
       color: #d1d5db;
     }
-    .avatar-stats strong {
-      font-size: 0.85rem;
-    }
+    .avatar-stats strong { font-size: 0.85rem; }
 
     .avatar-label {
       position: absolute;
@@ -277,30 +230,17 @@
       width: 18px;
       border-top: 1px solid #4b5563;
     }
-    .avatar-label.left {
-      left: 4px;
-      text-align: left;
-    }
-    .avatar-label.left::before {
-      left: 100%;
-      margin-left: 2px;
-    }
-    .avatar-label.right {
-      right: 4px;
-      text-align: right;
-    }
-    .avatar-label.right::before {
-      right: 100%;
-      margin-right: 2px;
-    }
+    .avatar-label.left  { left: 4px;  text-align: left; }
+    .avatar-label.right { right: 4px; text-align: right; }
+    .avatar-label.left::before  { left: 100%; margin-left: 2px; }
+    .avatar-label.right::before { right:100%; margin-right:2px; }
 
-    /* vertical positioning */
-    #label-shoulders { top: 20px; }
-    #label-chest     { top: 55px; }
+    #label-shoulders { top: 18px; }
+    #label-chest     { top: 54px; }
     #label-waist     { top: 90px; }
-    #label-hips      { top: 55px; }
-    #label-thighs    { top: 95px; }
-    #label-calves    { top: 130px; }
+    #label-hips      { top: 70px; }
+    #label-thighs    { top: 115px; }
+    #label-calves    { top: 145px; }
 
     /* FORMS */
     .form-grid {
@@ -330,23 +270,12 @@
       padding: 0.4rem 0.55rem;
       font-size: 0.85rem;
     }
-    input::placeholder,
-    textarea::placeholder {
-      color: #6b7280;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-    input[type="file"] {
-      font-size: 0.75rem;
-    }
+    input::placeholder, textarea::placeholder { color:#6b7280; }
+    textarea { resize: vertical; min-height: 60px; }
+    input[type="file"] { font-size: 0.75rem; }
 
     /* HISTORY TABLE */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 0.5rem;
-    }
+    .table-wrapper { overflow-x: auto; margin-top: 0.5rem; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -357,15 +286,8 @@
       border-bottom: 1px solid #111827;
       text-align: left;
     }
-    thead {
-      background: #020617;
-    }
-    tbody tr {
-      cursor: pointer;
-    }
-    tbody tr:hover {
-      background: #020617;
-    }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #020617; }
     .empty-row td {
       text-align: center;
       color: #6b7280;
@@ -380,9 +302,7 @@
       margin: 0.3rem 0 0.4rem;
       font-size: 0.8rem;
     }
-    .measurements-list li {
-      margin-bottom: 0.15rem;
-    }
+    .measurements-list li { margin-bottom: 0.15rem; }
 
     .photo-grid {
       display: grid;
@@ -440,19 +360,14 @@
       font-size: 0.75rem;
       cursor: pointer;
     }
-    .nav-btn span.icon {
-      font-size: 1rem;
-    }
+    .nav-btn span.icon { font-size: 1rem; }
     .nav-btn.active {
       color: #22c55e;
       font-weight: 600;
     }
 
     .hidden { display: none !important; }
-
-    #ai-status {
-      margin-top: 0.25rem;
-    }
+    #ai-status { margin-top: 0.25rem; }
   </style>
 </head>
 <body>
@@ -473,20 +388,62 @@
 
       <div class="avatar-card">
         <div class="avatar-wrapper">
-          <div id="avatar-figure" class="avatar avatar-neutral">
-            <div class="avatar-head"></div>
-            <div class="avatar-body"></div>
-          </div>
+          <svg id="avatar-svg" class="avatar-neutral" viewBox="0 0 80 190">
+            <!-- head -->
+            <circle cx="40" cy="18" r="9" class="avatar-outline"/>
+            <!-- neck -->
+            <line x1="40" y1="27" x2="40" y2="33" class="avatar-outline"/>
+
+            <!-- shoulders / upper torso -->
+            <g id="avatar-shoulders">
+              <path class="avatar-outline"
+                d="M25 33
+                   Q40 28 55 33
+                   L55 50
+                   Q40 55 25 50 Z" />
+            </g>
+
+            <!-- waist / mid torso -->
+            <g id="avatar-waist">
+              <path class="avatar-outline"
+                d="M28 50
+                   Q40 47 52 50
+                   L50 75
+                   Q40 78 30 75 Z" />
+            </g>
+
+            <!-- hips / pelvis -->
+            <g id="avatar-hips">
+              <path class="avatar-outline"
+                d="M30 75
+                   Q40 80 50 75
+                   L52 95
+                   Q40 100 28 95 Z" />
+            </g>
+
+            <!-- legs -->
+            <g id="avatar-legs">
+              <path class="avatar-outline"
+                d="M32 95 L35 135 L33 175
+                   M48 95 L45 135 L47 175" />
+            </g>
+
+            <!-- arms -->
+            <path class="avatar-outline"
+              d="M25 36 L18 65
+                 M55 36 L62 65" />
+          </svg>
 
           <!-- body-map labels -->
-          <div class="avatar-label left" id="label-shoulders">Shoulders: —</div>
-          <div class="avatar-label left" id="label-chest">Chest: —</div>
-          <div class="avatar-label left" id="label-waist">Waist: —</div>
+          <div class="avatar-label left"  id="label-shoulders">Shoulders: —</div>
+          <div class="avatar-label left"  id="label-chest">Chest: —</div>
+          <div class="avatar-label left"  id="label-waist">Waist: —</div>
 
           <div class="avatar-label right" id="label-hips">Hips: —</div>
           <div class="avatar-label right" id="label-thighs">Thighs: —</div>
           <div class="avatar-label right" id="label-calves">Calves: —</div>
         </div>
+
         <div class="avatar-stats">
           <strong>Latest body outline</strong><br />
           <span id="avatar-measurements" class="hint">
@@ -673,7 +630,7 @@
     <section id="section-profile" class="card hidden">
       <div class="section-header-line">
         <h2>Profile</h2>
-        <small class="hint">Used to calculate BMI and slightly adjust the avatar shape.</small>
+        <small class="hint">Used to calculate BMI and adjust the avatar shape.</small>
       </div>
 
       <form id="profile-form">
@@ -740,39 +697,27 @@
 </div>
 
 <script>
-  // ===== CONFIG =====
   const API_URL = "https://ai-body-measurement-tracker.onrender.com/api/measure";
-
-  const STORAGE_SCANS = "bodyscan_entries_v2";
+  const STORAGE_SCANS = "bodyscan_entries_v3";
   const STORAGE_PROFILE = "bodyscan_profile_v1";
 
   let scans = [];
   let profile = { units: "metric", height: null, age: null, sex: "", goal: "" };
 
-  // ===== LOAD / SAVE =====
   function loadData() {
     const savedScans = localStorage.getItem(STORAGE_SCANS);
     const savedProfile = localStorage.getItem(STORAGE_PROFILE);
-    if (savedScans) {
-      try { scans = JSON.parse(savedScans); } catch { scans = []; }
-    }
-    if (savedProfile) {
-      try { profile = { ...profile, ...JSON.parse(savedProfile) }; } catch {}
-    }
+    if (savedScans) { try { scans = JSON.parse(savedScans); } catch { scans = []; } }
+    if (savedProfile) { try { profile = { ...profile, ...JSON.parse(savedProfile) }; } catch {} }
   }
-  function saveScans() {
-    localStorage.setItem(STORAGE_SCANS, JSON.stringify(scans));
-  }
-  function saveProfile() {
-    localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile));
-  }
+  function saveScans()   { localStorage.setItem(STORAGE_SCANS,   JSON.stringify(scans)); }
+  function saveProfile() { localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile)); }
 
-  // ===== HELPERS =====
   function formatDelta(current, previous, goodWhenDown = true) {
     if (previous == null || isNaN(previous) || previous === 0) return { text: "—", cls: "flat" };
     if (current == null || isNaN(current)) return { text: "—", cls: "flat" };
     const diff = current - previous;
-    const pct = (diff / previous) * 100;
+    const pct  = (diff / previous) * 100;
     const rounded = pct.toFixed(1);
     if (Math.abs(pct) < 0.1) return { text: "0.0%", cls: "flat" };
     const arrow = pct < 0 ? "↓" : "↑";
@@ -808,102 +753,117 @@
   function updateAvatar(measurements) {
     const units = profile.units || "metric";
     const unitLabel = units === "metric" ? "cm" : "in";
-    const avatarFigure = document.getElementById("avatar-figure");
+    const svg = document.getElementById("avatar-svg");
 
-    avatarFigure.classList.remove("avatar-neutral", "avatar-male", "avatar-female");
-    if (profile.sex === "male") avatarFigure.classList.add("avatar-male");
-    else if (profile.sex === "female") avatarFigure.classList.add("avatar-female");
-    else avatarFigure.classList.add("avatar-neutral");
+    svg.classList.remove("avatar-neutral", "avatar-male", "avatar-female");
+    if (profile.sex === "male") svg.classList.add("avatar-male");
+    else if (profile.sex === "female") svg.classList.add("avatar-female");
+    else svg.classList.add("avatar-neutral");
+
+    const setLabel = (id, name, value) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (value == null || isNaN(value)) el.textContent = `${name}: —`;
+      else el.textContent = `${name}: ${value} ${unitLabel}`;
+    };
 
     if (!measurements) {
-      document.documentElement.style.setProperty("--body-scale", "1");
+      document.documentElement.style.setProperty("--avatar-waist-scale", "1");
+      document.documentElement.style.setProperty("--avatar-shoulder-scale", "1");
+      document.documentElement.style.setProperty("--avatar-hip-scale", "1");
+      document.documentElement.style.setProperty("--avatar-leg-scale", "1");
+      ["shoulders","chest","waist","hips","thighs","calves"].forEach((k)=>{
+        setLabel("label-"+k, k.charAt(0).toUpperCase()+k.slice(1), null);
+      });
       document.getElementById("avatar-measurements").textContent =
         "Add a scan with measurements to see this body map update.";
-      ["shoulders", "chest", "waist", "hips", "thighs", "calves"].forEach((key) => {
-        const id = "label-" + key;
-        const el = document.getElementById(id);
-        if (el) el.textContent = key.charAt(0).toUpperCase() + key.slice(1) + ": —";
-      });
       return;
     }
 
     const shoulders = measurements.shoulders;
-    const chest = measurements.chest;
-    const waist = measurements.waist;
-    const hips = measurements.hips;
-    const thighs = measurements.thighs;
-    const calves = measurements.calves;
+    const chest     = measurements.chest;
+    const waist     = measurements.waist;
+    const hips      = measurements.hips;
+    const thighs    = measurements.thighs;
+    const calves    = measurements.calves;
 
-    const baseWaist = units === "metric" ? 90 : 35;
-    const scale = waist
-      ? Math.max(0.7, Math.min(1.3, waist / baseWaist))
-      : 1;
-    document.documentElement.style.setProperty("--body-scale", scale.toFixed(2));
-
-    function label(id, name, value) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (value == null || isNaN(value)) {
-        el.textContent = `${name}: —`;
+    // Baseline circumferences (rough averages)
+    const base = (name) => {
+      if (units === "metric") {
+        const map = { shoulders:120, chest:105, waist:90, hips:105, thighs:60, calves:40 };
+        return map[name];
       } else {
-        el.textContent = `${name}: ${value} ${unitLabel}`;
+        const map = { shoulders:47, chest:41, waist:35, hips:41, thighs:24, calves:16 };
+        return map[name];
       }
-    }
+    };
+    const clampScale = (val, key) => {
+      const b = base(key);
+      if (!val || !b) return 1;
+      const r = val / b;
+      return Math.max(0.7, Math.min(1.35, r));
+    };
 
-    label("label-shoulders", "Shoulders", shoulders);
-    label("label-chest", "Chest", chest);
-    label("label-waist", "Waist", waist);
-    label("label-hips", "Hips", hips);
-    label("label-thighs", "Thighs", thighs);
-    label("label-calves", "Calves", calves);
+    const shoulderScale = clampScale(shoulders || chest, "shoulders");
+    const waistScale    = clampScale(waist, "waist");
+    const hipScale      = clampScale(hips, "hips");
+    const legScale      = clampScale((thighs && calves) ? (thighs+calves)/2 : thighs || calves, "thighs");
 
-    const summaryParts = [];
-    if (waist != null) summaryParts.push(`waist ${waist} ${unitLabel}`);
-    if (chest != null) summaryParts.push(`chest ${chest} ${unitLabel}`);
-    if (hips != null) summaryParts.push(`hips ${hips} ${unitLabel}`);
+    document.documentElement.style.setProperty("--avatar-shoulder-scale", shoulderScale.toFixed(2));
+    document.documentElement.style.setProperty("--avatar-waist-scale",    waistScale.toFixed(2));
+    document.documentElement.style.setProperty("--avatar-hip-scale",      hipScale.toFixed(2));
+    document.documentElement.style.setProperty("--avatar-leg-scale",      legScale.toFixed(2));
+
+    setLabel("label-shoulders","Shoulders",shoulders);
+    setLabel("label-chest","Chest",chest);
+    setLabel("label-waist","Waist",waist);
+    setLabel("label-hips","Hips",hips);
+    setLabel("label-thighs","Thighs",thighs);
+    setLabel("label-calves","Calves",calves);
+
+    const parts = [];
+    if (waist != null) parts.push(`waist ${waist} ${unitLabel}`);
+    if (chest != null) parts.push(`chest ${chest} ${unitLabel}`);
+    if (hips  != null) parts.push(`hips ${hips} ${unitLabel}`);
     document.getElementById("avatar-measurements").textContent =
-      summaryParts.length
-        ? `Silhouette scaled from ${summaryParts.join(" · ")}.`
-        : "Body map updated from your latest scan.";
+      parts.length ? `Silhouette scaled from ${parts.join(" · ")}.` :
+      "Body map updated from your latest scan.";
   }
 
-  // ===== RENDER =====
   function renderDashboard() {
     const lastScanText = document.getElementById("last-scan-text");
-    const metricsGrid = document.getElementById("metrics-grid");
-    const summary = document.getElementById("progress-summary");
+    const metricsGrid  = document.getElementById("metrics-grid");
+    const summary      = document.getElementById("progress-summary");
 
     if (!scans.length) {
       lastScanText.textContent = "No scans yet. Add your first scan to get started.";
       metricsGrid.innerHTML = "";
-      summary.textContent =
-        "Once you have at least two scans, you'll see changes in weight, waist, and body fat here.";
+      summary.textContent = "Once you have at least two scans, you'll see changes in weight, waist, and body fat here.";
       updateAvatar(null);
       return;
     }
 
-    const sorted = [...scans].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const latest = sorted[0];
+    const sorted   = [...scans].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latest   = sorted[0];
     const previous = sorted[1] || null;
 
-    lastScanText.textContent =
-      `Last scan: ${latest.date}${latest.time ? " · " + latest.time : ""}`;
+    lastScanText.textContent = `Last scan: ${latest.date}${latest.time ? " · "+latest.time : ""}`;
 
-    const units = profile.units || "metric";
+    const units      = profile.units || "metric";
     const weightUnit = units === "metric" ? "kg" : "lb";
 
     const bmiLatest = computeBMI(latest.weight, profile.height, units);
-    const bmiPrev = previous ? computeBMI(previous.weight, profile.height, units) : null;
+    const bmiPrev   = previous ? computeBMI(previous.weight, profile.height, units) : null;
 
     const weightDelta = formatDelta(latest.weight, previous?.weight, true);
-    const bfDelta = formatDelta(latest.bodyFat, previous?.bodyFat, true);
-    const mmDelta = formatDelta(latest.muscle, previous?.muscle, false);
-    const bmiDelta = formatDelta(bmiLatest, bmiPrev, true);
+    const bfDelta     = formatDelta(latest.bodyFat, previous?.bodyFat, true);
+    const mmDelta     = formatDelta(latest.muscle, previous?.muscle, false);
+    const bmiDelta    = formatDelta(bmiLatest, bmiPrev, true);
 
     metricsGrid.innerHTML = `
       <div class="metric-card">
         <h4>Weight</h4>
-        <div class="value">${latest.weight ?? "—"}<span class="unit">${latest.weight != null ? " " + weightUnit : ""}</span></div>
+        <div class="value">${latest.weight ?? "—"}<span class="unit">${latest.weight != null ? " "+weightUnit : ""}</span></div>
         <div class="delta ${weightDelta.cls}">${weightDelta.text}</div>
       </div>
       <div class="metric-card">
@@ -913,7 +873,7 @@
       </div>
       <div class="metric-card">
         <h4>Muscle mass</h4>
-        <div class="value">${latest.muscle ?? "—"}<span class="unit">${latest.muscle != null ? " " + weightUnit : ""}</span></div>
+        <div class="value">${latest.muscle ?? "—"}<span class="unit">${latest.muscle != null ? " "+weightUnit : ""}</span></div>
         <div class="delta ${mmDelta.cls}">${mmDelta.text}</div>
       </div>
       <div class="metric-card">
@@ -923,13 +883,9 @@
       </div>
     `;
 
-    if (previous) {
-      summary.textContent =
-        `You have ${scans.length} total scans. Changes reflect the difference since your previous scan.`;
-    } else {
-      summary.textContent =
-        "You only have one scan so far. As you add more, you'll see trends in your metrics here.";
-    }
+    summary.textContent = previous
+      ? `You have ${scans.length} total scans. Changes reflect the difference since your previous scan.`
+      : "You only have one scan so far. As you add more, you'll see trends in your metrics here.";
 
     updateAvatar(latest.measurements);
   }
@@ -948,32 +904,31 @@
       return;
     }
 
-    const units = profile.units || "metric";
+    const units      = profile.units || "metric";
     const lengthUnit = units === "metric" ? "cm" : "in";
     const weightUnit = units === "metric" ? "kg" : "lb";
 
     [...scans]
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .forEach((scan) => {
+      .sort((a,b)=>new Date(b.date)-new Date(a.date))
+      .forEach(scan=>{
         const tr = document.createElement("tr");
         tr.dataset.id = scan.id;
         tr.innerHTML = `
           <td>${scan.date}</td>
-          <td>${scan.weight != null ? scan.weight + " " + weightUnit : ""}</td>
-          <td>${scan.measurements.waist != null ? scan.measurements.waist + " " + lengthUnit : ""}</td>
-          <td>${scan.bodyFat != null ? scan.bodyFat + " %" : ""}</td>
-          <td>${shortNotes(scan.notes)}</td>
-        `;
-        tr.addEventListener("click", () => showDetail(scan.id));
+          <td>${scan.weight != null ? scan.weight+" "+weightUnit : ""}</td>
+          <td>${scan.measurements.waist != null ? scan.measurements.waist+" "+lengthUnit : ""}</td>
+          <td>${scan.bodyFat != null ? scan.bodyFat+" %" : ""}</td>
+          <td>${shortNotes(scan.notes)}</td>`;
+        tr.addEventListener("click", ()=>showDetail(scan.id));
         tbody.appendChild(tr);
       });
   }
 
   function showDetail(id) {
-    const scan = scans.find((s) => s.id === id);
+    const scan = scans.find(s=>s.id===id);
     if (!scan) return;
 
-    const units = profile.units || "metric";
+    const units      = profile.units || "metric";
     const lengthUnit = units === "metric" ? "cm" : "in";
     const weightUnit = units === "metric" ? "kg" : "lb";
 
@@ -981,29 +936,29 @@
 
     const bmi = computeBMI(scan.weight, profile.height, units);
     const summary =
-      `${scan.date}${scan.time ? " · " + scan.time : ""} · ` +
-      `${scan.weight != null ? scan.weight + " " + weightUnit : "no weight entered"}` +
-      `${bmi != null ? " · BMI " + bmi.toFixed(1) : ""}`;
+      `${scan.date}${scan.time ? " · "+scan.time : ""} · ` +
+      `${scan.weight != null ? scan.weight+" "+weightUnit : "no weight entered"}` +
+      `${bmi != null ? " · BMI "+bmi.toFixed(1) : ""}`;
     document.getElementById("detail-summary").textContent = summary;
 
     const m = scan.measurements;
     const list = document.getElementById("detail-measurements");
     list.innerHTML = `
-      <li>Shoulders: ${m.shoulders != null ? m.shoulders + " " + lengthUnit : "—"}</li>
-      <li>Chest: ${m.chest != null ? m.chest + " " + lengthUnit : "—"}</li>
-      <li>Waist: ${m.waist != null ? m.waist + " " + lengthUnit : "—"}</li>
-      <li>Hips: ${m.hips != null ? m.hips + " " + lengthUnit : "—"}</li>
-      <li>Arms: ${m.arms != null ? m.arms + " " + lengthUnit : "—"}</li>
-      <li>Thighs: ${m.thighs != null ? m.thighs + " " + lengthUnit : "—"}</li>
-      <li>Calves: ${m.calves != null ? m.calves + " " + lengthUnit : "—"}</li>
+      <li>Shoulders: ${m.shoulders != null ? m.shoulders+" "+lengthUnit : "—"}</li>
+      <li>Chest: ${m.chest != null ? m.chest+" "+lengthUnit : "—"}</li>
+      <li>Waist: ${m.waist != null ? m.waist+" "+lengthUnit : "—"}</li>
+      <li>Hips: ${m.hips != null ? m.hips+" "+lengthUnit : "—"}</li>
+      <li>Arms: ${m.arms != null ? m.arms+" "+lengthUnit : "—"}</li>
+      <li>Thighs: ${m.thighs != null ? m.thighs+" "+lengthUnit : "—"}</li>
+      <li>Calves: ${m.calves != null ? m.calves+" "+lengthUnit : "—"}</li>
     `;
 
     document.getElementById("detail-notes").textContent = scan.notes || "—";
 
-    document.getElementById("detail-front").src = scan.photos.front || "";
-    document.getElementById("detail-side").src = scan.photos.side || "";
-    document.getElementById("detail-back").src = scan.photos.back || "";
-    document.getElementById("detail-angle").src = scan.photos.angle || "";
+    document.getElementById("detail-front").src  = scan.photos.front  || "";
+    document.getElementById("detail-side").src   = scan.photos.side   || "";
+    document.getElementById("detail-back").src   = scan.photos.back   || "";
+    document.getElementById("detail-angle").src  = scan.photos.angle  || "";
   }
 
   function hideDetail() {
@@ -1011,39 +966,35 @@
   }
 
   function renderProfile() {
-    document.getElementById("profile-units").value = profile.units || "metric";
+    document.getElementById("profile-units").value  = profile.units || "metric";
     document.getElementById("profile-height").value = profile.height ?? "";
-    document.getElementById("profile-age").value = profile.age ?? "";
-    document.getElementById("profile-sex").value = profile.sex ?? "";
-    document.getElementById("profile-goal").value = profile.goal ?? "";
+    document.getElementById("profile-age").value    = profile.age ?? "";
+    document.getElementById("profile-sex").value    = profile.sex ?? "";
+    document.getElementById("profile-goal").value   = profile.goal ?? "";
   }
 
-  // ===== NAV =====
   function showSection(name) {
     const sections = {
-      dashboard: "section-dashboard",
-      newscan: "section-newscan",
-      history: "section-history",
-      profile: "section-profile",
+      dashboard:"section-dashboard",
+      newscan:"section-newscan",
+      history:"section-history",
+      profile:"section-profile",
     };
-    Object.values(sections).forEach((id) => {
+    Object.values(sections).forEach(id=>{
       document.getElementById(id).classList.add("hidden");
     });
-    if (sections[name]) {
-      document.getElementById(sections[name]).classList.remove("hidden");
-    }
-    if (name !== "history") hideDetail();
+    if (sections[name]) document.getElementById(sections[name]).classList.remove("hidden");
+    if (name!=="history") hideDetail();
 
-    document.querySelectorAll(".nav-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.target === name);
+    document.querySelectorAll(".nav-btn").forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.target===name);
     });
 
-    if (name === "dashboard") renderDashboard();
-    if (name === "history") renderHistory();
-    if (name === "profile") renderProfile();
+    if (name==="dashboard") renderDashboard();
+    if (name==="history")   renderHistory();
+    if (name==="profile")   renderProfile();
   }
 
-  // ===== AI ANALYSIS =====
   async function analyzePhotosWithAI() {
     const aiStatus = document.getElementById("ai-status");
     aiStatus.textContent = "";
@@ -1055,8 +1006,8 @@
       const weight = parseFloat(document.getElementById("scan-weight").value);
 
       const front = document.getElementById("photo-front").files[0];
-      const side = document.getElementById("photo-side").files[0];
-      const back = document.getElementById("photo-back").files[0];
+      const side  = document.getElementById("photo-side").files[0];
+      const back  = document.getElementById("photo-back").files[0];
       const angle = document.getElementById("photo-angle").files[0];
 
       if (!front || !side) {
@@ -1075,68 +1026,54 @@
       if (!isNaN(weight)) formData.append("weight", weight);
       formData.append("front", front);
       formData.append("side", side);
-      if (back) formData.append("back", back);
+      if (back)  formData.append("back",  back);
       if (angle) formData.append("angle", angle);
 
-      const resp = await fetch(API_URL, {
-        method: "POST",
-        body: formData
-      });
-
-      if (!resp.ok) {
-        throw new Error("Server error: " + (await resp.text()));
-      }
-
+      const resp = await fetch(API_URL, { method:"POST", body:formData });
+      if (!resp.ok) throw new Error("Server error: "+(await resp.text()));
       const data = await resp.json();
-      if (!data.ok) {
-        throw new Error(data.error || "AI measurement failed.");
-      }
+      if (!data.ok) throw new Error(data.error || "AI measurement failed.");
 
-      // Map AI outputs into fields we have
-      if (data.chest != null) document.getElementById("measure-chest").value = data.chest;
-      if (data.waist != null) document.getElementById("measure-waist").value = data.waist;
-      if (data.hips != null) document.getElementById("measure-hips").value = data.hips;
-      if (data.thigh != null) document.getElementById("measure-thighs").value = data.thigh;
-      if (data.arm != null) document.getElementById("measure-arms").value = data.arm;
-      // shoulders & calves would come from a richer model later
+      if (data.chest != null) document.getElementById("measure-chest").value   = data.chest;
+      if (data.waist != null) document.getElementById("measure-waist").value   = data.waist;
+      if (data.hips  != null) document.getElementById("measure-hips").value    = data.hips;
+      if (data.thigh != null) document.getElementById("measure-thighs").value  = data.thigh;
+      if (data.arm   != null) document.getElementById("measure-arms").value    = data.arm;
+      // shoulders & calves can come later from a richer model
 
       aiStatus.textContent =
-        `AI filled in some measurements (approx. ${Math.round((data.confidence || 0) * 100)}% confidence). Review and adjust if needed.`;
+        `AI filled in some measurements (approx. ${Math.round((data.confidence || 0)*100)}% confidence). Review and adjust if needed.`;
     } catch (err) {
       console.error(err);
-      aiStatus.textContent = "AI error: " + err.message;
+      aiStatus.textContent = "AI error: "+err.message;
     } finally {
       btn.disabled = false;
     }
   }
 
-  // ===== FORM HANDLERS =====
   async function handleNewScan(event) {
     event.preventDefault();
     const date = document.getElementById("scan-date").value;
-    if (!date) {
-      alert("Please enter a date.");
-      return;
-    }
+    if (!date) { alert("Please enter a date."); return; }
 
-    const time = document.getElementById("scan-time").value.trim() || null;
-    const weight = parseFloat(document.getElementById("scan-weight").value);
+    const time    = document.getElementById("scan-time").value.trim() || null;
+    const weight  = parseFloat(document.getElementById("scan-weight").value);
     const bodyFat = parseFloat(document.getElementById("scan-bodyfat").value);
-    const muscle = parseFloat(document.getElementById("scan-muscle").value);
+    const muscle  = parseFloat(document.getElementById("scan-muscle").value);
 
-    const chest = parseFloat(document.getElementById("measure-chest").value);
+    const chest     = parseFloat(document.getElementById("measure-chest").value);
     const shoulders = parseFloat(document.getElementById("measure-shoulders").value);
-    const waist = parseFloat(document.getElementById("measure-waist").value);
-    const hips = parseFloat(document.getElementById("measure-hips").value);
-    const arms = parseFloat(document.getElementById("measure-arms").value);
-    const thighs = parseFloat(document.getElementById("measure-thighs").value);
-    const calves = parseFloat(document.getElementById("measure-calves").value);
+    const waist     = parseFloat(document.getElementById("measure-waist").value);
+    const hips      = parseFloat(document.getElementById("measure-hips").value);
+    const arms      = parseFloat(document.getElementById("measure-arms").value);
+    const thighs    = parseFloat(document.getElementById("measure-thighs").value);
+    const calves    = parseFloat(document.getElementById("measure-calves").value);
 
     const notes = document.getElementById("scan-notes").value.trim();
 
     const frontFile = document.getElementById("photo-front").files[0];
-    const sideFile = document.getElementById("photo-side").files[0];
-    const backFile = document.getElementById("photo-back").files[0];
+    const sideFile  = document.getElementById("photo-side").files[0];
+    const backFile  = document.getElementById("photo-back").files[0];
     const angleFile = document.getElementById("photo-angle").files[0];
 
     const [front, side, back, angle] = await Promise.all([
@@ -1150,17 +1087,17 @@
       id: Date.now().toString(),
       date,
       time,
-      weight: isNaN(weight) ? null : weight,
+      weight:  isNaN(weight)  ? null : weight,
       bodyFat: isNaN(bodyFat) ? null : bodyFat,
-      muscle: isNaN(muscle) ? null : muscle,
+      muscle:  isNaN(muscle)  ? null : muscle,
       measurements: {
-        chest: isNaN(chest) ? null : chest,
+        chest:     isNaN(chest)     ? null : chest,
         shoulders: isNaN(shoulders) ? null : shoulders,
-        waist: isNaN(waist) ? null : waist,
-        hips: isNaN(hips) ? null : hips,
-        arms: isNaN(arms) ? null : arms,
-        thighs: isNaN(thighs) ? null : thighs,
-        calves: isNaN(calves) ? null : calves,
+        waist:     isNaN(waist)     ? null : waist,
+        hips:      isNaN(hips)      ? null : hips,
+        arms:      isNaN(arms)      ? null : arms,
+        thighs:    isNaN(thighs)    ? null : thighs,
+        calves:    isNaN(calves)    ? null : calves,
       },
       notes,
       photos: { front, side, back, angle },
@@ -1180,38 +1117,31 @@
   function handleProfileSave(event) {
     event.preventDefault();
     profile.units = document.getElementById("profile-units").value || "metric";
-    const heightVal = parseFloat(document.getElementById("profile-height").value);
-    const ageVal = parseInt(document.getElementById("profile-age").value, 10);
-    profile.height = isNaN(heightVal) ? null : heightVal;
-    profile.age = isNaN(ageVal) ? null : ageVal;
-    profile.sex = document.getElementById("profile-sex").value || "";
-    profile.goal = document.getElementById("profile-goal").value.trim();
+    const h = parseFloat(document.getElementById("profile-height").value);
+    const a = parseInt(document.getElementById("profile-age").value,10);
+    profile.height = isNaN(h) ? null : h;
+    profile.age    = isNaN(a) ? null : a;
+    profile.sex    = document.getElementById("profile-sex").value || "";
+    profile.goal   = document.getElementById("profile-goal").value.trim();
     saveProfile();
     alert("Profile saved.");
     renderDashboard();
   }
 
-  // ===== INIT =====
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", ()=>{
     loadData();
     renderDashboard();
     renderProfile();
     renderHistory();
 
-    document.querySelectorAll(".nav-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        showSection(btn.dataset.target);
-      });
+    document.querySelectorAll(".nav-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>showSection(btn.dataset.target));
     });
-
-    document.getElementById("btn-dashboard-newscan").addEventListener("click", () => {
-      showSection("newscan");
-    });
+    document.getElementById("btn-dashboard-newscan").addEventListener("click", ()=>showSection("newscan"));
 
     document.getElementById("scan-form").addEventListener("submit", handleNewScan);
     document.getElementById("profile-form").addEventListener("submit", handleProfileSave);
     document.getElementById("btn-detail-close").addEventListener("click", hideDetail);
-
     document.getElementById("btn-ai-analyze").addEventListener("click", analyzePhotosWithAI);
 
     const today = new Date().toISOString().split("T")[0];
