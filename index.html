@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      --body-scale: 1; /* avatar body width */
+      --body-scale: 1; /* avatar waist scale */
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -16,6 +16,7 @@
       background: #020617;
       color: #e5e7eb;
     }
+
     button, input, textarea, select {
       font: inherit;
     }
@@ -28,6 +29,7 @@
       margin: 0 auto;
       background: #020617;
     }
+
     header {
       padding: 1rem 1.2rem 0.5rem;
       border-bottom: 1px solid #111827;
@@ -90,18 +92,6 @@
     .section-header-line small {
       font-size: 0.75rem;
       color: #9ca3af;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.12rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      background: #111827;
-      color: #9ca3af;
-      margin-left: 0.3rem;
     }
 
     .primary {
@@ -189,15 +179,17 @@
       color: #9ca3af;
     }
 
-    /* AVATAR */
+    /* AVATAR + BODY MAP */
     .avatar-card {
       display: grid;
-      grid-template-columns: minmax(0, 140px) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
       gap: 0.75rem;
       align-items: center;
       margin-bottom: 0.4rem;
     }
+
     .avatar-wrapper {
+      position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -205,13 +197,16 @@
       border-radius: 0.75rem;
       border: 1px solid #1f2937;
       background: radial-gradient(circle at top, #0f172a, #020617);
+      min-height: 170px;
     }
+
     .avatar {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.1rem;
     }
+
     .avatar-head {
       width: 32px;
       height: 32px;
@@ -219,29 +214,47 @@
       background: #0f172a;
       border: 2px solid #22c55e;
     }
+
     .avatar-body {
       width: calc(40px * var(--body-scale));
-      height: 80px;
-      border-radius: 20px;
+      height: 90px;
+      border-radius: 24px;
       background: linear-gradient(to bottom, #16a34a, #22c55e);
       transition: width 0.25s ease-out;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       position: relative;
     }
+
     .avatar-body::before,
     .avatar-body::after {
       content: "";
       position: absolute;
-      top: 10px;
+      top: 12px;
       width: 10px;
-      height: 35px;
+      height: 42px;
       border-radius: 999px;
       background: #16a34a;
     }
     .avatar-body::before { left: -8px; }
     .avatar-body::after { right: -8px; }
+
+    /* Sex variants */
+    .avatar-neutral .avatar-body {
+      background: linear-gradient(to bottom, #16a34a, #22c55e);
+    }
+    .avatar-male .avatar-body {
+      background: linear-gradient(to bottom, #22c55e, #16a34a);
+      border-radius: 20px;
+    }
+    .avatar-female .avatar-body {
+      background: linear-gradient(to bottom, #f97316, #fb7185);
+      border-radius: 28px;
+    }
+    .avatar-male .avatar-head {
+      border-color: #22c55e;
+    }
+    .avatar-female .avatar-head {
+      border-color: #fb7185;
+    }
 
     .avatar-stats {
       font-size: 0.8rem;
@@ -250,6 +263,44 @@
     .avatar-stats strong {
       font-size: 0.85rem;
     }
+
+    .avatar-label {
+      position: absolute;
+      font-size: 0.7rem;
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+    .avatar-label::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 18px;
+      border-top: 1px solid #4b5563;
+    }
+    .avatar-label.left {
+      left: 4px;
+      text-align: left;
+    }
+    .avatar-label.left::before {
+      left: 100%;
+      margin-left: 2px;
+    }
+    .avatar-label.right {
+      right: 4px;
+      text-align: right;
+    }
+    .avatar-label.right::before {
+      right: 100%;
+      margin-right: 2px;
+    }
+
+    /* vertical positioning */
+    #label-shoulders { top: 20px; }
+    #label-chest     { top: 55px; }
+    #label-waist     { top: 90px; }
+    #label-hips      { top: 55px; }
+    #label-thighs    { top: 95px; }
+    #label-calves    { top: 130px; }
 
     /* FORMS */
     .form-grid {
@@ -399,15 +450,6 @@
 
     .hidden { display: none !important; }
 
-    .badge {
-      display: inline-block;
-      padding: 0.1rem 0.45rem;
-      border-radius: 999px;
-      background: #111827;
-      color: #9ca3af;
-      font-size: 0.7rem;
-    }
-
     #ai-status {
       margin-top: 0.25rem;
     }
@@ -431,15 +473,24 @@
 
       <div class="avatar-card">
         <div class="avatar-wrapper">
-          <div class="avatar">
+          <div id="avatar-figure" class="avatar avatar-neutral">
             <div class="avatar-head"></div>
             <div class="avatar-body"></div>
           </div>
+
+          <!-- body-map labels -->
+          <div class="avatar-label left" id="label-shoulders">Shoulders: —</div>
+          <div class="avatar-label left" id="label-chest">Chest: —</div>
+          <div class="avatar-label left" id="label-waist">Waist: —</div>
+
+          <div class="avatar-label right" id="label-hips">Hips: —</div>
+          <div class="avatar-label right" id="label-thighs">Thighs: —</div>
+          <div class="avatar-label right" id="label-calves">Calves: —</div>
         </div>
         <div class="avatar-stats">
           <strong>Latest body outline</strong><br />
           <span id="avatar-measurements" class="hint">
-            Once you add a scan, this silhouette will widen or tighten based on your waist size.
+            Once you add a scan, this silhouette and labels update to match your latest measurements.
           </span>
         </div>
       </div>
@@ -484,11 +535,17 @@
         </div>
 
         <h3>Measurements</h3>
-        <p class="hint">You can fill these manually or let the AI suggest them from your photos.</p>
+        <p class="hint">
+          You can fill these manually from tape/Evolt or let the AI suggest values from your photos.
+        </p>
         <div class="form-grid">
           <div class="form-row">
             <label for="measure-chest">Chest</label>
             <input type="number" id="measure-chest" step="0.1" placeholder="in / cm" />
+          </div>
+          <div class="form-row">
+            <label for="measure-shoulders">Shoulders</label>
+            <input type="number" id="measure-shoulders" step="0.1" placeholder="in / cm" />
           </div>
           <div class="form-row">
             <label for="measure-waist">Waist</label>
@@ -499,12 +556,16 @@
             <input type="number" id="measure-hips" step="0.1" placeholder="in / cm" />
           </div>
           <div class="form-row">
-            <label for="measure-thigh">Right thigh</label>
-            <input type="number" id="measure-thigh" step="0.1" placeholder="in / cm" />
+            <label for="measure-arms">Arms</label>
+            <input type="number" id="measure-arms" step="0.1" placeholder="in / cm" />
           </div>
           <div class="form-row">
-            <label for="measure-arm">Right arm</label>
-            <input type="number" id="measure-arm" step="0.1" placeholder="in / cm" />
+            <label for="measure-thighs">Thighs</label>
+            <input type="number" id="measure-thighs" step="0.1" placeholder="in / cm" />
+          </div>
+          <div class="form-row">
+            <label for="measure-calves">Calves</label>
+            <input type="number" id="measure-calves" step="0.1" placeholder="in / cm" />
           </div>
         </div>
 
@@ -612,7 +673,7 @@
     <section id="section-profile" class="card hidden">
       <div class="section-header-line">
         <h2>Profile</h2>
-        <small class="hint">Used to calculate BMI and improve AI context.</small>
+        <small class="hint">Used to calculate BMI and slightly adjust the avatar shape.</small>
       </div>
 
       <form id="profile-form">
@@ -635,7 +696,7 @@
           <div class="form-row">
             <label for="profile-sex">Sex</label>
             <select id="profile-sex">
-              <option value="">Prefer not to say</option>
+              <option value="">Neutral / prefer not to say</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
@@ -682,7 +743,7 @@
   // ===== CONFIG =====
   const API_URL = "https://ai-body-measurement-tracker.onrender.com/api/measure";
 
-  const STORAGE_SCANS = "bodyscan_entries_v1";
+  const STORAGE_SCANS = "bodyscan_entries_v2";
   const STORAGE_PROFILE = "bodyscan_profile_v1";
 
   let scans = [];
@@ -745,23 +806,65 @@
   }
 
   function updateAvatar(measurements) {
-    const waist = measurements?.waist;
     const units = profile.units || "metric";
-    if (!waist) {
+    const unitLabel = units === "metric" ? "cm" : "in";
+    const avatarFigure = document.getElementById("avatar-figure");
+
+    avatarFigure.classList.remove("avatar-neutral", "avatar-male", "avatar-female");
+    if (profile.sex === "male") avatarFigure.classList.add("avatar-male");
+    else if (profile.sex === "female") avatarFigure.classList.add("avatar-female");
+    else avatarFigure.classList.add("avatar-neutral");
+
+    if (!measurements) {
       document.documentElement.style.setProperty("--body-scale", "1");
       document.getElementById("avatar-measurements").textContent =
-        "Add waist measurements to see this silhouette tighten or widen over time.";
+        "Add a scan with measurements to see this body map update.";
+      ["shoulders", "chest", "waist", "hips", "thighs", "calves"].forEach((key) => {
+        const id = "label-" + key;
+        const el = document.getElementById(id);
+        if (el) el.textContent = key.charAt(0).toUpperCase() + key.slice(1) + ": —";
+      });
       return;
     }
-    const base = units === "metric" ? 90 : 35; // rough baseline
-    const scale = Math.max(0.7, Math.min(1.3, waist / base));
+
+    const shoulders = measurements.shoulders;
+    const chest = measurements.chest;
+    const waist = measurements.waist;
+    const hips = measurements.hips;
+    const thighs = measurements.thighs;
+    const calves = measurements.calves;
+
+    const baseWaist = units === "metric" ? 90 : 35;
+    const scale = waist
+      ? Math.max(0.7, Math.min(1.3, waist / baseWaist))
+      : 1;
     document.documentElement.style.setProperty("--body-scale", scale.toFixed(2));
 
-    const chest = measurements.chest ?? "—";
-    const hips = measurements.hips ?? "—";
-    const unitLabel = units === "metric" ? "cm" : "in";
+    function label(id, name, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (value == null || isNaN(value)) {
+        el.textContent = `${name}: —`;
+      } else {
+        el.textContent = `${name}: ${value} ${unitLabel}`;
+      }
+    }
+
+    label("label-shoulders", "Shoulders", shoulders);
+    label("label-chest", "Chest", chest);
+    label("label-waist", "Waist", waist);
+    label("label-hips", "Hips", hips);
+    label("label-thighs", "Thighs", thighs);
+    label("label-calves", "Calves", calves);
+
+    const summaryParts = [];
+    if (waist != null) summaryParts.push(`waist ${waist} ${unitLabel}`);
+    if (chest != null) summaryParts.push(`chest ${chest} ${unitLabel}`);
+    if (hips != null) summaryParts.push(`hips ${hips} ${unitLabel}`);
     document.getElementById("avatar-measurements").textContent =
-      `Chest: ${chest} ${unitLabel} · Waist: ${waist} ${unitLabel} · Hips: ${hips} ${unitLabel}`;
+      summaryParts.length
+        ? `Silhouette scaled from ${summaryParts.join(" · ")}.`
+        : "Body map updated from your latest scan.";
   }
 
   // ===== RENDER =====
@@ -799,22 +902,22 @@
 
     metricsGrid.innerHTML = `
       <div class="metric-card">
-        <h4>Weight<span class="pill">${weightDelta.text}</span></h4>
+        <h4>Weight</h4>
         <div class="value">${latest.weight ?? "—"}<span class="unit">${latest.weight != null ? " " + weightUnit : ""}</span></div>
         <div class="delta ${weightDelta.cls}">${weightDelta.text}</div>
       </div>
       <div class="metric-card">
-        <h4>Body fat<span class="pill">${bfDelta.text}</span></h4>
+        <h4>Body fat</h4>
         <div class="value">${latest.bodyFat ?? "—"}<span class="unit">${latest.bodyFat != null ? " %" : ""}</span></div>
         <div class="delta ${bfDelta.cls}">${bfDelta.text}</div>
       </div>
       <div class="metric-card">
-        <h4>Muscle mass<span class="pill">${mmDelta.text}</span></h4>
+        <h4>Muscle mass</h4>
         <div class="value">${latest.muscle ?? "—"}<span class="unit">${latest.muscle != null ? " " + weightUnit : ""}</span></div>
         <div class="delta ${mmDelta.cls}">${mmDelta.text}</div>
       </div>
       <div class="metric-card">
-        <h4>BMI<span class="pill">${bmiDelta.text}</span></h4>
+        <h4>BMI</h4>
         <div class="value">${bmiLatest != null ? bmiLatest.toFixed(1) : "—"}</div>
         <div class="delta ${bmiDelta.cls}">${bmiDelta.text}</div>
       </div>
@@ -886,11 +989,13 @@
     const m = scan.measurements;
     const list = document.getElementById("detail-measurements");
     list.innerHTML = `
+      <li>Shoulders: ${m.shoulders != null ? m.shoulders + " " + lengthUnit : "—"}</li>
       <li>Chest: ${m.chest != null ? m.chest + " " + lengthUnit : "—"}</li>
       <li>Waist: ${m.waist != null ? m.waist + " " + lengthUnit : "—"}</li>
       <li>Hips: ${m.hips != null ? m.hips + " " + lengthUnit : "—"}</li>
-      <li>Right thigh: ${m.thigh != null ? m.thigh + " " + lengthUnit : "—"}</li>
-      <li>Right arm: ${m.arm != null ? m.arm + " " + lengthUnit : "—"}</li>
+      <li>Arms: ${m.arms != null ? m.arms + " " + lengthUnit : "—"}</li>
+      <li>Thighs: ${m.thighs != null ? m.thighs + " " + lengthUnit : "—"}</li>
+      <li>Calves: ${m.calves != null ? m.calves + " " + lengthUnit : "—"}</li>
     `;
 
     document.getElementById("detail-notes").textContent = scan.notes || "—";
@@ -961,9 +1066,9 @@
       }
       if (!height) {
         aiStatus.textContent = "Add your height in Profile for better estimates.";
+      } else {
+        aiStatus.textContent = "Sending photos to AI…";
       }
-
-      aiStatus.textContent = "Sending photos to AI…";
 
       const formData = new FormData();
       if (height) formData.append("height", height);
@@ -987,15 +1092,16 @@
         throw new Error(data.error || "AI measurement failed.");
       }
 
-      // Fill measurement fields (assuming cm for now)
+      // Map AI outputs into fields we have
       if (data.chest != null) document.getElementById("measure-chest").value = data.chest;
       if (data.waist != null) document.getElementById("measure-waist").value = data.waist;
       if (data.hips != null) document.getElementById("measure-hips").value = data.hips;
-      if (data.thigh != null) document.getElementById("measure-thigh").value = data.thigh;
-      if (data.arm != null) document.getElementById("measure-arm").value = data.arm;
+      if (data.thigh != null) document.getElementById("measure-thighs").value = data.thigh;
+      if (data.arm != null) document.getElementById("measure-arms").value = data.arm;
+      // shoulders & calves would come from a richer model later
 
       aiStatus.textContent =
-        `AI filled in measurements (approx. ${Math.round((data.confidence || 0) * 100)}% confidence). Review and adjust if needed.`;
+        `AI filled in some measurements (approx. ${Math.round((data.confidence || 0) * 100)}% confidence). Review and adjust if needed.`;
     } catch (err) {
       console.error(err);
       aiStatus.textContent = "AI error: " + err.message;
@@ -1019,10 +1125,12 @@
     const muscle = parseFloat(document.getElementById("scan-muscle").value);
 
     const chest = parseFloat(document.getElementById("measure-chest").value);
+    const shoulders = parseFloat(document.getElementById("measure-shoulders").value);
     const waist = parseFloat(document.getElementById("measure-waist").value);
     const hips = parseFloat(document.getElementById("measure-hips").value);
-    const thigh = parseFloat(document.getElementById("measure-thigh").value);
-    const arm = parseFloat(document.getElementById("measure-arm").value);
+    const arms = parseFloat(document.getElementById("measure-arms").value);
+    const thighs = parseFloat(document.getElementById("measure-thighs").value);
+    const calves = parseFloat(document.getElementById("measure-calves").value);
 
     const notes = document.getElementById("scan-notes").value.trim();
 
@@ -1047,10 +1155,12 @@
       muscle: isNaN(muscle) ? null : muscle,
       measurements: {
         chest: isNaN(chest) ? null : chest,
+        shoulders: isNaN(shoulders) ? null : shoulders,
         waist: isNaN(waist) ? null : waist,
         hips: isNaN(hips) ? null : hips,
-        thigh: isNaN(thigh) ? null : thigh,
-        arm: isNaN(arm) ? null : arm,
+        arms: isNaN(arms) ? null : arms,
+        thighs: isNaN(thighs) ? null : thighs,
+        calves: isNaN(calves) ? null : calves,
       },
       notes,
       photos: { front, side, back, angle },
