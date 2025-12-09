@@ -93,11 +93,12 @@
       color: var(--text-muted);
       background: transparent;
       transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+      white-space: nowrap;
     }
 
     .nav-tab.active {
       color: #e5e7eb;
-      background: radial-gradient(circle at top, #22c55e, #15803d);
+      background: radial-gradient(circle at top, #22c55e, #16a34a);
       box-shadow: 0 0 16px rgba(34, 197, 94, 0.55);
       transform: translateY(-1px);
     }
@@ -203,6 +204,19 @@
     .btn-sm {
       padding: 0.35rem 0.7rem;
       font-size: 0.78rem;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 0.9);
     }
 
     /* DASHBOARD LAYOUT */
@@ -454,25 +468,6 @@
       background: rgba(15, 23, 42, 0.7);
     }
 
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      padding: 0.05rem 0.5rem;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid #1f2937;
-      color: #e5e7eb;
-    }
-
-    .chip-pill {
-      background: rgba(34, 197, 94, 0.12);
-      border-color: rgba(34, 197, 94, 0.55);
-      color: #bbf7d0;
-    }
-
-    /* BADGES */
-
     .badge-note {
       display: inline-flex;
       align-items: center;
@@ -517,6 +512,86 @@
       }
       .avatar-card {
         grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* ---------- PHOTO + CARD MEASUREMENT OVERLAY ---------- */
+
+    .measure-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 1rem;
+    }
+
+    .measure-overlay.active {
+      display: flex;
+    }
+
+    .measure-panel {
+      background: #020617;
+      border-radius: 1rem;
+      border: 1px solid #1f2937;
+      max-width: 640px;
+      width: 100%;
+      padding: 0.9rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .measure-panel h3 {
+      font-size: 1rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .measure-panel p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    #measure-canvas {
+      width: 100%;
+      max-height: 60vh;
+      border-radius: 0.6rem;
+      background: #020617;
+      border: 1px solid #1f2937;
+      margin-top: 0.4rem;
+      cursor: crosshair;
+    }
+
+    .measure-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .measure-step-label {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    .measure-tip {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.2rem;
+    }
+
+    @media (max-width: 640px) {
+      .measure-panel {
+        height: 100%;
+        max-width: 100%;
+      }
+      #measure-canvas {
+        max-height: 55vh;
       }
     }
   </style>
@@ -596,7 +671,7 @@
                   <div class="badge-note">
                     <span class="icon">⚠️</span>
                     <span>
-                      Future AI estimates may be approximate and are
+                      Future AI or photo-based estimates are
                       <span class="danger-text">not 100% accurate</span>. Always
                       double-check with a tape measure.
                     </span>
@@ -634,15 +709,15 @@
           <ul class="list">
             <li>All values are in <span class="highlight">imperial units</span> (lbs, inches).</li>
             <li>
-              In the future, photos may be analyzed by AI to estimate body measurements.
-              Even then, results are estimates and
+              When you use the photo + card helper, the app estimates measurements from a single 2D image.
+              These are still estimates and
               <span class="danger-text">may not be fully accurate</span>.
             </li>
             <li>
               Use this app to track trends over time, not to obsess over single numbers.
             </li>
             <li>
-              Tape-measure checks every so often are a good way to validate any AI-based values.
+              Tape-measure checks every so often are a good way to validate any estimates.
             </li>
           </ul>
         </div>
@@ -703,12 +778,12 @@
 
             <div class="field">
               <label>Progress photos (optional)</label>
-              <small>These aren't uploaded anywhere in this demo; they are just for future AI ideas.</small>
+              <small>Front photo with a credit card in view works best for the helper.</small>
             </div>
 
             <div class="form-grid-2">
               <div class="field">
-                <label for="photo-front">Front photo</label>
+                <label for="photo-front">Front photo (with card)</label>
                 <input type="file" id="photo-front" name="photoFront" accept="image/*" />
               </div>
               <div class="field">
@@ -726,17 +801,33 @@
             </div>
 
             <div class="field">
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                id="open-measure-helper">
+                Use photo + card helper
+              </button>
+              <small>
+                You’ll click the edges of a credit card, then left/right points for shoulders, chest, waist, hips,
+                thighs, and calves. The app will estimate the widths in inches and fill the fields for you.
+              </small>
+            </div>
+
+            <div class="field">
               <label for="scan-notes">Notes (optional)</label>
               <textarea id="scan-notes" name="scanNotes" placeholder="Workout block, diet changes, how you felt, etc."></textarea>
             </div>
 
             <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.4rem;">
-              <button class="btn btn-primary" type="submit">Save scan</button>
+              <div style="display:flex;gap:.5rem;align-items:center;">
+                <button class="btn btn-primary" type="submit">Save scan</button>
+              </div>
               <div class="badge-note">
                 <span class="icon">ℹ️</span>
                 <span>
-                  Future versions might auto-estimate measurements from photos using AI. This demo uses
-                  <span class="highlight">your manual inputs</span> only.
+                  Photo + card helper provides
+                  <span class="highlight">estimated</span> measurements only. Adjust them if needed
+                  before saving.
                 </span>
               </div>
             </div>
@@ -827,6 +918,29 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- PHOTO + CARD MEASUREMENT OVERLAY -->
+  <div class="measure-overlay" id="measure-overlay">
+    <div class="measure-panel">
+      <h3>Photo + Card Measurement Helper</h3>
+      <p id="measure-step-text">
+        Step 1: Tap the left and right edges of your credit card in the front photo.
+      </p>
+      <canvas id="measure-canvas"></canvas>
+      <div class="measure-controls">
+        <span class="measure-step-label" id="measure-step-label">Step 1 of 7</span>
+        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+          <button class="btn-ghost" type="button" id="measure-clear-step">Clear step</button>
+          <button class="btn-ghost" type="button" id="measure-next-step">Skip / next</button>
+          <button class="btn-ghost" type="button" id="measure-close">Close</button>
+        </div>
+      </div>
+      <p class="measure-tip">
+        Tip: A standard credit card is about <span class="highlight">3.37 inches</span> wide.
+        These measurements are estimates based on a 2D image and may not match a tape measure exactly.
+      </p>
+    </div>
   </div>
 
   <script>
@@ -1108,6 +1222,234 @@
       notesEl.value = profile.notes ?? "";
     }
 
+    // ---------- PHOTO + CARD HELPER STATE ----------
+
+    const MEASURE_STEPS = [
+      {
+        id: "card",
+        label: "Card width",
+        prompt: "Step 1: Tap the LEFT and RIGHT edges of your credit card.",
+        isCalibration: true
+      },
+      {
+        id: "shoulders",
+        label: "Shoulders",
+        prompt: "Step 2: Tap left and right points at the widest part of your shoulders.",
+        targetFieldId: "shoulders-in"
+      },
+      {
+        id: "chest",
+        label: "Chest",
+        prompt: "Step 3: Tap left and right points across the chest at nipple level.",
+        targetFieldId: "chest-in"
+      },
+      {
+        id: "waist",
+        label: "Waist",
+        prompt: "Step 4: Tap left and right points at the narrowest part of your waist.",
+        targetFieldId: "waist-in"
+      },
+      {
+        id: "hips",
+        label: "Hips",
+        prompt: "Step 5: Tap left and right points at the widest part of your hips.",
+        targetFieldId: "hips-in"
+      },
+      {
+        id: "thighs",
+        label: "Thighs",
+        prompt: "Step 6: Tap left and right points across mid-thigh on your front leg.",
+        targetFieldId: "thighs-in"
+      },
+      {
+        id: "calves",
+        label: "Calves",
+        prompt: "Step 7: Tap left and right points at the fullest part of your calf.",
+        targetFieldId: "calves-in"
+      }
+    ];
+
+    const CREDIT_CARD_WIDTH_IN = 3.37; // inches
+
+    const measureState = {
+      img: null,
+      pxPerIn: null,
+      stepIndex: 0,
+      points: []
+    };
+
+    function openMeasureOverlay() {
+      const overlay = document.getElementById("measure-overlay");
+      const canvas = document.getElementById("measure-canvas");
+      const fileInput = document.getElementById("photo-front");
+
+      if (!fileInput.files || !fileInput.files[0]) {
+        alert("Please select a front photo (with your credit card visible) first.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          measureState.img = img;
+          measureState.pxPerIn = null;
+          measureState.stepIndex = 0;
+          measureState.points = [];
+          overlay.classList.add("active");
+          setupCanvasForImage();
+          updateMeasureStepText();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function closeMeasureOverlay() {
+      const overlay = document.getElementById("measure-overlay");
+      overlay.classList.remove("active");
+    }
+
+    function setupCanvasForImage() {
+      const canvas = document.getElementById("measure-canvas");
+      const ctx = canvas.getContext("2d");
+      const img = measureState.img;
+      if (!img) return;
+
+      // fit image to canvas width while preserving aspect ratio
+      const panel = document.querySelector(".measure-panel");
+      const maxWidth = panel.clientWidth - 24;
+      const ratio = img.height / img.width;
+
+      canvas.width = maxWidth;
+      canvas.height = Math.min(maxWidth * ratio, window.innerHeight * 0.55);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+
+    function redrawCanvasWithCurrentPoints() {
+      const canvas = document.getElementById("measure-canvas");
+      const ctx = canvas.getContext("2d");
+      const img = measureState.img;
+      if (!img) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const pts = measureState.points;
+      ctx.fillStyle = "#38bdf8";
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+
+      pts.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      if (pts.length === 2) {
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        ctx.lineTo(pts[1].x, pts[1].y);
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    function updateMeasureStepText() {
+      const stepTextEl = document.getElementById("measure-step-text");
+      const stepLabelEl = document.getElementById("measure-step-label");
+      const step = MEASURE_STEPS[measureState.stepIndex];
+
+      if (!step) return;
+      stepTextEl.textContent = step.prompt;
+      stepLabelEl.textContent = `Step ${measureState.stepIndex + 1} of ${MEASURE_STEPS.length}`;
+    }
+
+    function handleMeasureCanvasClick(evt) {
+      const canvas = document.getElementById("measure-canvas");
+      const rect = canvas.getBoundingClientRect();
+      const x = evt.clientX - rect.left;
+      const y = evt.clientY - rect.top;
+
+      const step = MEASURE_STEPS[measureState.stepIndex];
+      if (!step) return;
+
+      // collect up to 2 points per step
+      if (measureState.points.length >= 2) return;
+      measureState.points.push({ x, y });
+      redrawCanvasWithCurrentPoints();
+
+      if (measureState.points.length === 2) {
+        // compute distance in pixels
+        const [p1, p2] = measureState.points;
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const distPx = Math.sqrt(dx * dx + dy * dy);
+
+        if (step.isCalibration) {
+          // calibration: card width in pixels -> pxPerIn
+          measureState.pxPerIn = distPx / CREDIT_CARD_WIDTH_IN;
+          alert("Card captured. Scale set from the photo.");
+        } else {
+          if (!measureState.pxPerIn) {
+            alert("Please do the credit-card step first to set the scale.");
+          } else if (step.targetFieldId) {
+            const inches = distPx / measureState.pxPerIn;
+            const rounded = Math.round(inches * 10) / 10;
+            const field = document.getElementById(step.targetFieldId);
+            if (field) {
+              field.value = rounded;
+            }
+            // update avatar with current field set
+            const measurements = {
+              shoulders: parseFloat(document.getElementById("shoulders-in").value) || null,
+              chest:     parseFloat(document.getElementById("chest-in").value) || null,
+              waist:     parseFloat(document.getElementById("waist-in").value) || null,
+              hips:      parseFloat(document.getElementById("hips-in").value) || null,
+              thighs:    parseFloat(document.getElementById("thighs-in").value) || null,
+              calves:    parseFloat(document.getElementById("calves-in").value) || null
+            };
+            updateAvatar(measurements);
+            alert(`${step.label} estimated at ~${rounded} in. You can adjust it before saving.`);
+          }
+        }
+
+        // move to next step after a short delay
+        setTimeout(() => {
+          measureState.points = [];
+          if (measureState.stepIndex < MEASURE_STEPS.length - 1) {
+            measureState.stepIndex += 1;
+            setupCanvasForImage();
+            updateMeasureStepText();
+          } else {
+            // finished all steps
+            closeMeasureOverlay();
+          }
+        }, 250);
+      }
+    }
+
+    function clearCurrentMeasureStep() {
+      measureState.points = [];
+      setupCanvasForImage();
+      updateMeasureStepText();
+    }
+
+    function skipMeasureStep() {
+      if (measureState.stepIndex < MEASURE_STEPS.length - 1) {
+        measureState.stepIndex += 1;
+        measureState.points = [];
+        setupCanvasForImage();
+        updateMeasureStepText();
+      } else {
+        closeMeasureOverlay();
+      }
+    }
+
     // ---------- Event wiring ----------
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1197,6 +1539,41 @@
         };
         saveState();
         alert("Profile saved.");
+      });
+
+      // photo + card helper
+      const openHelperBtn = document.getElementById("open-measure-helper");
+      const overlay = document.getElementById("measure-overlay");
+      const canvas = document.getElementById("measure-canvas");
+
+      if (openHelperBtn) {
+        openHelperBtn.addEventListener("click", openMeasureOverlay);
+      }
+
+      if (canvas) {
+        canvas.addEventListener("click", handleMeasureCanvasClick);
+      }
+
+      const clearStepBtn = document.getElementById("measure-clear-step");
+      const nextStepBtn = document.getElementById("measure-next-step");
+      const closeBtn = document.getElementById("measure-close");
+
+      if (clearStepBtn) {
+        clearStepBtn.addEventListener("click", clearCurrentMeasureStep);
+      }
+      if (nextStepBtn) {
+        nextStepBtn.addEventListener("click", skipMeasureStep);
+      }
+      if (closeBtn) {
+        closeBtn.addEventListener("click", closeMeasureOverlay);
+      }
+
+      // re-draw canvas on window resize (keep image fitting nicely)
+      window.addEventListener("resize", () => {
+        if (overlay.classList.contains("active") && measureState.img) {
+          setupCanvasForImage();
+          measureState.points = [];
+        }
       });
     });
   </script>
