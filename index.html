@@ -2,1292 +2,1203 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BodyScan · AI Measurements</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Body Measurements (Demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #e5e7eb;
+    :root {
+      --bg: #020617;
+      --bg-card: #020617;
+      --bg-card-soft: #020617;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.12);
+      --accent-strong: rgba(34, 197, 94, 0.35);
+      --accent-blue: #38bdf8;
+      --accent-blue-soft: rgba(56, 189, 248, 0.12);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
     }
 
-    button, input, textarea, select { font: inherit; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    .app {
-      display: flex;
-      flex-direction: column;
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617, #020617 55%, #000 100%);
+      color: var(--text-main);
       min-height: 100vh;
-      max-width: 900px;
+    }
+
+    .app-shell {
+      max-width: 1100px;
       margin: 0 auto;
-      background: #020617;
+      padding: 1.75rem 1rem 3rem;
     }
 
     header {
-      padding: 1rem 1.2rem 0.5rem;
-      border-bottom: 1px solid #111827;
-      background: #020617;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.4rem;
-      letter-spacing: 0.08em;
-    }
-
-    header h1 span { color: #22c55e; }
-
-    header p {
-      margin: 0.25rem 0 0.5rem;
-      font-size: 0.8rem;
-      color: #9ca3af;
-    }
-
-    main {
-      flex: 1;
-      padding: 0.5rem 1rem 4rem;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
       gap: 0.75rem;
     }
 
+    header h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header h1 span.logo-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 999px;
+      background: radial-gradient(circle, #22c55e, #15803d);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* NAV */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 999px;
+      padding: 0.25rem;
+      border: 1px solid #1e293b;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.4rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+    }
+
+    .nav-tab.active {
+      color: #e5e7eb;
+      background: radial-gradient(circle at top, #22c55e, #15803d);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .nav-tab:hover:not(.active) {
+      background: rgba(31, 41, 55, 0.8);
+    }
+
+    /* LAYOUT / CARDS */
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
     .card {
-      background: #020617;
-      border-radius: 0.75rem;
-      border: 1px solid #1f2937;
-      padding: 0.9rem 1rem 1rem;
+      background: radial-gradient(circle at top left, #020617, #020617 60%, #000 100%);
+      border-radius: 1.2rem;
+      border: 1px solid var(--border-subtle);
+      padding: 1.2rem 1.2rem 1rem;
+      box-shadow:
+        0 22px 45px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(148, 163, 184, 0.02);
+      position: relative;
+      overflow: hidden;
     }
 
     .card h2 {
-      margin: 0 0 0.5rem;
       font-size: 1.1rem;
+      margin-bottom: 0.15rem;
     }
 
-    .card h3 {
-      margin: 0.8rem 0 0.4rem;
-      font-size: 0.9rem;
-    }
-
-    .hint {
-      font-size: 0.78rem;
-      color: #9ca3af;
-    }
-
-    .section-header-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .section-header-line small {
-      font-size: 0.75rem;
-      color: #9ca3af;
-    }
-
-    .primary {
-      border: none;
-      background: #22c55e;
-      color: #022c22;
-      border-radius: 999px;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2rem;
-    }
-
-    .primary:active { transform: scale(0.98); }
-
-    .secondary {
-      border: 1px solid #374151;
-      background: #020617;
-      color: #e5e7eb;
-      border-radius: 999px;
-      padding: 0.45rem 1rem;
+    .card-subtitle {
       font-size: 0.85rem;
-      cursor: pointer;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
     }
 
-    .secondary:active { transform: scale(0.98); }
-
-    /* DASHBOARD METRICS */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.6rem;
-      margin-top: 0.6rem;
-    }
-
-    .metric-card {
-      padding: 0.6rem;
-      border-radius: 0.75rem;
-      border: 1px solid #1f2937;
-      background: radial-gradient(circle at top left, #022c22, #020617 55%);
-    }
-
-    .metric-card h4 {
-      margin: 0;
-      font-size: 0.8rem;
-      color: #9ca3af;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .metric-card .value {
-      margin-top: 0.25rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .metric-card .unit {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-left: 0.15rem;
-    }
-
-    .metric-card .delta {
-      margin-top: 0.25rem;
-      font-size: 0.75rem;
-      font-weight: 500;
+    .pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.15rem;
-      padding: 0.1rem 0.45rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.12rem 0.5rem;
       border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #1f2937;
+      color: var(--text-muted);
+      gap: 0.3rem;
     }
 
-    .delta.up   { background: rgba(34,197,94,0.15);  color:#22c55e; }
-    .delta.down { background: rgba(248,113,113,0.18); color:#f87171; }
-    .delta.flat { background: rgba(148,163,184,0.18); color:#9ca3af; }
+    /* BUTTONS */
 
-   /* AVATAR + BODY MAP */
-.avatar-card {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 0.4rem;
-}
-
-.avatar-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.4rem;
-  border-radius: 0.75rem;
-  border: 1px solid #1f2937;
-  background: radial-gradient(circle at top, #020617, #020617 45%, #000 100%);
-  min-height: 190px;
-  box-shadow:
-    0 0 35px rgba(56, 189, 248, 0.25),
-    0 0 8px rgba(56, 189, 248, 0.5) inset;
-}
-
-svg#avatar-svg {
-  width: 140px;
-  height: 190px;
-  filter:
-    drop-shadow(0 0 10px rgba(56, 189, 248, 0.9))
-    drop-shadow(0 0 18px rgba(56, 189, 248, 0.5));
-  animation: avatar-breathe 3s ease-in-out infinite;
-}
-
-@keyframes avatar-breathe {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-2px); }
-}
-
-.avatar-outline {
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* glowing “hologram” body fill */
-.avatar-body {
-  fill: rgba(56, 189, 248, 0.12);
-}
-
-/* measurement guide lines through the body */
-.measure-line {
-  stroke: #38bdf8;
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-  opacity: 0.7;
-}
-
-/* sex-based color tweaks */
-.avatar-neutral .avatar-outline { stroke: #22c55e; }
-.avatar-male    .avatar-outline { stroke: #38bdf8; }
-.avatar-female  .avatar-outline { stroke: #fb7185; }
-
-.avatar-stats {
-  font-size: 0.8rem;
-  color: #d1d5db;
-}
-
-.avatar-stats strong { font-size: 0.85rem; }
-
-/* labels positioned next to each guide line */
-.avatar-label {
-  position: absolute;
-  font-size: 0.7rem;
-  color: #e5e7eb;
-  white-space: nowrap;
-}
-
-.avatar-label.left  { left: 6px;  text-align: left; }
-.avatar-label.right { right: 6px; text-align: right; }
-
-/* we no longer draw a tiny extra line with ::before,
-   the big guide lines come from the SVG */
-.avatar-label::before { content: none; }
-
-/* tuned to line up with the new SVG line positions */
-#label-shoulders { top: 26px; }
-#label-chest     { top: 52px; }
-#label-waist     { top: 78px; }
-#label-hips      { top: 94px; }
-#label-thighs    { top: 120px; }
-#label-calves    { top: 146px; }
-
-
-    /* FORMS */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 0.6rem;
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      gap: 0.3rem;
+      transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
     }
 
-    .form-row {
+    .btn-primary {
+      background: radial-gradient(circle at top, #22c55e, #16a34a);
+      color: #ecfdf5;
+      box-shadow:
+        0 0 22px rgba(34, 197, 94, 0.6),
+        0 12px 25px rgba(22, 163, 74, 0.75);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 28px rgba(34, 197, 94, 0.8),
+        0 15px 30px rgba(22, 163, 74, 0.85);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+    }
+
+    .btn-outline:hover {
+      background: rgba(31, 41, 55, 0.8);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.78rem;
+    }
+
+    /* DASHBOARD LAYOUT */
+
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header-left {
       display: flex;
       flex-direction: column;
-      gap: 0.18rem;
-      margin-bottom: 0.4rem;
+      gap: 0.25rem;
     }
 
-    label {
-      font-size: 0.78rem;
-      color: #d1d5db;
+    .dashboard-header-left p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .dashboard-header-right {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
+      gap: 1rem;
+    }
+
+    .metric-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .metric-pill {
+      font-size: 0.7rem;
+      padding: 0.28rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .metric-pill span.value {
+      color: #bbf7d0;
+      font-weight: 500;
+    }
+
+    .metric-pill span.delta-pos {
+      color: #4ade80;
+      font-size: 0.7rem;
+    }
+
+    .metric-pill span.delta-neg {
+      color: #f97373;
+      font-size: 0.7rem;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.83rem;
+    }
+
+    .muted-strong {
+      color: #e5e7eb;
+    }
+
+    /* AVATAR: background image + SVG overlay */
+
+    .avatar-card {
+      display: grid;
+      grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.4rem;
+      border-radius: 0.9rem;
+      border: 1px solid #1f2937;
+      background: radial-gradient(circle at top, #020617, #020617 55%, #000 100%);
+      min-height: 250px;
+      aspect-ratio: 1 / 1.5;
+      overflow: hidden;
+      box-shadow:
+        0 0 28px rgba(15, 23, 42, 1),
+        0 0 36px rgba(56, 189, 248, 0.33);
+    }
+
+    #avatar-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.75;
+      object-fit: contain;
+      transition: opacity 0.3s ease;
+    }
+
+    #measurement-overlay-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+    }
+
+    .avatar-label {
+      position: absolute;
+      font-size: 0.7rem;
+      color: #e5e7eb;
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(15, 23, 42, 0.9);
+    }
+
+    .avatar-label.left {
+      left: 6px;
+      text-align: left;
+    }
+
+    .avatar-label.right {
+      right: 6px;
+      text-align: right;
+    }
+
+    /* approximate vertical positions lining up with the avatar PNG */
+    #label-shoulders { top: 16%; }
+    #label-chest     { top: 26%; }
+    #label-waist     { top: 40%; }
+    #label-hips      { top: 52%; }
+    #label-thighs    { top: 68%; }
+    #label-calves    { top: 82%; }
+
+    .avatar-stats {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .avatar-stats strong {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    /* FORMS */
+
+    form {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.84rem;
+    }
+
+    .field label {
+      color: #e5e7eb;
+    }
+
+    .field small {
+      color: var(--text-muted);
+      font-size: 0.7rem;
     }
 
     input[type="number"],
-    input[type="date"],
     input[type="text"],
-    textarea,
-    select {
-      border-radius: 0.6rem;
-      border: 1px solid #374151;
-      background: #020617;
+    input[type="date"],
+    input[type="file"],
+    select,
+    textarea {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 0.55rem;
+      border: 1px solid #1f2937;
+      padding: 0.45rem 0.55rem;
       color: #e5e7eb;
-      padding: 0.4rem 0.55rem;
       font-size: 0.85rem;
     }
 
-    input::placeholder,
-    textarea::placeholder { color:#6b7280; }
-
     textarea {
+      min-height: 70px;
       resize: vertical;
-      min-height: 60px;
     }
 
-    input[type="file"] { font-size: 0.75rem; }
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgba(34, 197, 94, 0.8);
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45);
+    }
 
     /* HISTORY TABLE */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 0.5rem;
-    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    thead tr {
+      background: rgba(15, 23, 42, 0.9);
     }
 
     th, td {
-      padding: 0.35rem 0.25rem;
-      border-bottom: 1px solid #111827;
+      padding: 0.4rem 0.45rem;
       text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: #e5e7eb;
       white-space: nowrap;
     }
 
-    tbody tr { cursor: pointer; }
-
-    tbody tr:hover { background: #020617; }
-
-    .empty-row td {
-      text-align: center;
-      color: #6b7280;
-      padding: 0.6rem;
-      cursor: default;
-      white-space: normal;
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.7);
     }
 
-    /* DETAIL VIEW */
-    .measurements-list {
-      list-style: none;
-      padding: 0;
-      margin: 0.3rem 0 0.4rem;
-      font-size: 0.8rem;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      padding: 0.05rem 0.5rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
     }
 
-    .measurements-list li { margin-bottom: 0.15rem; }
+    .chip-pill {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.55);
+      color: #bbf7d0;
+    }
 
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.4rem;
+    /* BADGES */
+
+    .badge-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--text-muted);
       margin-top: 0.4rem;
     }
 
-    figure {
-      margin: 0;
-      padding: 0.3rem;
-      border-radius: 0.6rem;
-      border: 1px solid #1f2937;
-      background: #020617;
+    .badge-note span.icon {
+      font-size: 0.8rem;
+      color: #eab308;
     }
 
-    figure img {
-      width: 100%;
-      border-radius: 0.4rem;
-      object-fit: cover;
-      max-height: 240px;
+    .list {
+      margin-top: 0.4rem;
+      padding-left: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
 
-    figure figcaption {
-      margin-top: 0.2rem;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      text-align: center;
+    .list li {
+      margin-bottom: 0.18rem;
     }
 
-    /* NAVBAR */
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      max-width: 900px;
-      margin: 0 auto;
-      border-top: 1px solid #111827;
-      background: rgba(2, 6, 23, 0.96);
-      backdrop-filter: blur(16px);
+    .highlight {
+      color: #bbf7d0;
+      font-weight: 500;
     }
 
-    .nav-inner {
-      display: flex;
-      justify-content: space-around;
-      padding: 0.25rem 0.5rem 0.4rem;
+    .danger-text {
+      color: var(--danger);
     }
 
-    .nav-btn {
-      flex: 1;
-      border: none;
-      background: none;
-      color: #6b7280;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.1rem;
-      padding: 0.3rem 0;
-      font-size: 0.75rem;
-      cursor: pointer;
+    @media (max-width: 800px) {
+      .dashboard-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .avatar-card {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
-
-    .nav-btn span.icon { font-size: 1rem; }
-
-    .nav-btn.active {
-      color: #22c55e;
-      font-weight: 600;
-    }
-
-    .hidden { display: none !important; }
-
-    #ai-status { margin-top: 0.25rem; }
   </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <h1><span>BODY</span>SCAN</h1>
-    <p id="header-subtitle">AI-assisted body tracking · Data stays on this device.</p>
-  </header>
-
-  <main>
-    <!-- DASHBOARD -->
-    <section id="section-dashboard" class="card">
-      <div class="section-header-line">
-        <h2>Dashboard</h2>
-        <button id="btn-dashboard-newscan" class="primary">New Scan →</button>
+  <div class="app-shell">
+    <header>
+      <div>
+        <h1>
+          <span class="logo-dot"></span>
+          AI Body Measurements
+        </h1>
+        <p>Demo tracker for progress photos & body measurements (imperial units).</p>
       </div>
-      <p class="hint" id="last-scan-text">No scans yet. Add your first scan to get started.</p>
-
-      <div class="avatar-card">
-       <div class="avatar-wrapper">
-  <!-- Hologram-style human figure with guide lines -->
-  <svg id="avatar-svg" class="avatar-neutral" viewBox="0 0 80 190">
-    <!-- head -->
-    <circle cx="40" cy="20" r="8" class="avatar-outline avatar-body" />
-
-    <!-- neck -->
-    <line x1="40" y1="28" x2="40" y2="34" class="avatar-outline" />
-
-    <!-- main torso (this path gets morphed by JS via #body-path) -->
-    <path id="body-path"
-          class="avatar-outline avatar-body"
-          d="
-            M30 34
-            Q40 30 50 34
-            L54 48
-            Q56 58 53 68
-            Q52 72 50 78
-            Q46 86 43 92
-            Q40 96 37 92
-            Q34 86 30 78
-            Q28 72 27 68
-            Q24 58 26 48
-            Z
-          " />
-
-    <!-- arms (JS adjusts this path via #arms-path) -->
-    <path id="arms-path"
-          class="avatar-outline"
-          d="
-            M30 40 Q24 52 22 66 Q21 72 23 84
-            M50 40 Q56 52 58 66 Q59 72 57 84
-          " />
-
-    <!-- legs (JS adjusts this path via #legs-path) -->
-    <path id="legs-path"
-          class="avatar-outline"
-          d="
-            M36 92 Q35 118 35 142 Q35 156 34 170
-            M44 92 Q45 118 45 142 Q45 156 46 170
-          " />
-
-    <!-- horizontal measurement guide lines -->
-    <line id="line-shoulders" class="measure-line" x1="8"  x2="72" y1="42"  y2="42" />
-    <line id="line-chest"     class="measure-line" x1="8"  x2="72" y1="60"  y2="60" />
-    <line id="line-waist"     class="measure-line" x1="8"  x2="72" y1="78"  y2="78" />
-    <line id="line-hips"      class="measure-line" x1="8"  x2="72" y1="94"  y2="94" />
-    <line id="line-thighs"    class="measure-line" x1="8"  x2="72" y1="118" y2="118" />
-    <line id="line-calves"    class="measure-line" x1="8"  x2="72" y1="144" y2="144" />
-  </svg>
-
-  <!-- Text labels that sit beside each guide line -->
-  <div class="avatar-label left"  id="label-shoulders">Shoulders: —</div>
-  <div class="avatar-label left"  id="label-chest">Chest: —</div>
-  <div class="avatar-label left"  id="label-waist">Waist: —</div>
-
-  <div class="avatar-label right" id="label-hips">Hips: —</div>
-  <div class="avatar-label right" id="label-thighs">Thighs: —</div>
-  <div class="avatar-label right" id="label-calves">Calves: —</div>
-</div>
-
-      <div class="metrics-grid" id="metrics-grid"></div>
-
-      <h3>Progress Summary</h3>
-      <p class="hint" id="progress-summary">
-        Once you have at least two scans, you'll see changes in weight, waist, and body fat here.
-      </p>
-    </section>
-
-    <!-- NEW SCAN -->
-    <section id="section-newscan" class="card hidden">
-      <div class="section-header-line">
-        <h2>New Scan</h2>
-        <small class="hint">Use your usual lighting, pose, and distance for consistency.</small>
+      <div class="pill">
+        <span style="width:6px;height:6px;border-radius:999px;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.8);"></span>
+        <span>Demo Only · Not medical grade</span>
       </div>
+    </header>
 
-      <form id="scan-form">
-        <div class="form-row">
-          <label for="scan-date">Date</label>
-          <input type="date" id="scan-date" required />
-        </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+      <button class="nav-tab" data-view="scan">New scan</button>
+      <button class="nav-tab" data-view="history">History</button>
+      <button class="nav-tab" data-view="profile">Profile</button>
+    </nav>
 
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="scan-time">Time (optional)</label>
-            <input type="text" id="scan-time" placeholder="e.g. 09:30 AM" />
+    <main>
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="card">
+          <div class="dashboard-header">
+            <div class="dashboard-header-left">
+              <h2>Dashboard</h2>
+              <p id="dashboard-subtitle">No scans yet. Add your first scan to get started.</p>
+            </div>
+            <div class="dashboard-header-right">
+              <button class="btn btn-primary btn-sm" id="goto-new-scan">
+                New Scan →
+              </button>
+            </div>
           </div>
-          <div class="form-row">
-            <label for="scan-weight">Weight (lb)</label>
-            <input type="number" id="scan-weight" step="0.1" placeholder="lb" />
-          </div>
-          <div class="form-row">
-            <label for="scan-bodyfat">Body fat %</label>
-            <input type="number" id="scan-bodyfat" step="0.1" placeholder="optional" />
-          </div>
-          <div class="form-row">
-            <label for="scan-muscle">Muscle mass (lb)</label>
-            <input type="number" id="scan-muscle" step="0.1" placeholder="optional" />
-          </div>
-        </div>
 
-        <h3>Measurements (inches)</h3>
-        <p class="hint">
-          You can fill these manually from tape/Evolt or let the AI suggest values from your photos.
-        </p>
+          <div class="dashboard-grid">
+            <!-- LEFT: Avatar -->
+            <div>
+              <div class="avatar-card">
+                <div class="avatar-wrapper">
+                  <img
+                    id="avatar-background"
+                    src="avatar-male.png"
+                    alt="3D Body Avatar"
+                  />
+                  <svg
+                    id="measurement-overlay-svg"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="xMidYMid meet">
+                  </svg>
 
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="measure-chest">Chest</label>
-            <input type="number" id="measure-chest" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-shoulders">Shoulders</label>
-            <input type="number" id="measure-shoulders" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-waist">Waist</label>
-            <input type="number" id="measure-waist" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-hips">Hips</label>
-            <input type="number" id="measure-hips" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-arms">Arms</label>
-            <input type="number" id="measure-arms" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-thighs">Thighs</label>
-            <input type="number" id="measure-thighs" step="0.1" placeholder="in" />
-          </div>
-          <div class="form-row">
-            <label for="measure-calves">Calves</label>
-            <input type="number" id="measure-calves" step="0.1" placeholder="in" />
-          </div>
-        </div>
+                  <div class="avatar-label left"  id="label-shoulders">Shoulders: —</div>
+                  <div class="avatar-label left"  id="label-chest">Chest: —</div>
+                  <div class="avatar-label left"  id="label-waist">Waist: —</div>
 
-        <h3>Photos</h3>
-        <p class="hint">
-          AI needs at least front + side. Try to keep the camera at about chest height, neutral pose, no flexing.
-        </p>
+                  <div class="avatar-label right" id="label-hips">Hips: —</div>
+                  <div class="avatar-label right" id="label-thighs">Thighs: —</div>
+                  <div class="avatar-label right" id="label-calves">Calves: —</div>
+                </div>
 
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="photo-front">Front</label>
-            <input type="file" id="photo-front" accept="image/*" />
-          </div>
-          <div class="form-row">
-            <label for="photo-side">Side</label>
-            <input type="file" id="photo-side" accept="image/*" />
-          </div>
-          <div class="form-row">
-            <label for="photo-back">Back</label>
-            <input type="file" id="photo-back" accept="image/*" />
-          </div>
-          <div class="form-row">
-            <label for="photo-angle">45° / three-quarter</label>
-            <input type="file" id="photo-angle" accept="image/*" />
-          </div>
-        </div>
+                <div>
+                  <p class="muted">
+                    <strong class="muted-strong">Latest body outline</strong><br />
+                    These measurement lines sit on top of a 3D avatar and update from your latest scan.
+                  </p>
+                  <p id="avatar-measurements" class="avatar-stats" style="margin-top:0.5rem;">
+                    Add a scan with measurements to see this body map update.
+                  </p>
+                  <div class="badge-note">
+                    <span class="icon">⚠️</span>
+                    <span>
+                      Future AI estimates may be approximate and are
+                      <span class="danger-text">not 100% accurate</span>. Always
+                      double-check with a tape measure.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <div class="form-row">
-          <button type="button" id="btn-ai-analyze" class="secondary">
-            Analyze Photos with AI
-          </button>
-          <p id="ai-status" class="hint"></p>
-        </div>
+            <!-- RIGHT: Metrics -->
+            <div>
+              <div>
+                <h3 style="font-size:0.95rem;margin-bottom:0.25rem;">Latest metrics</h3>
+                <p class="muted">A quick snapshot from your most recent scan.</p>
+                <div class="metric-pill-row" id="latest-metric-pills" style="margin-top:0.6rem;">
+                  <span class="muted">No data yet.</span>
+                </div>
+              </div>
 
-        <h3>Notes</h3>
-        <div class="form-row">
-          <textarea id="scan-notes" placeholder="Training, diet, stress, sleep, cravings, etc."></textarea>
-        </div>
-
-        <button type="submit" class="primary">Save Scan</button>
-      </form>
-    </section>
-
-    <!-- HISTORY -->
-    <section id="section-history" class="card hidden">
-      <div class="section-header-line">
-        <h2>History</h2>
-        <small class="hint">Tap a row to view full details and photos.</small>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-          <tr>
-            <th>Date</th>
-            <th>Weight (lb)</th>
-            <th>Chest (in)</th>
-            <th>Shoulders (in)</th>
-            <th>Waist (in)</th>
-            <th>Hips (in)</th>
-            <th>Arms (in)</th>
-            <th>Thighs (in)</th>
-            <th>Calves (in)</th>
-            <th>Body fat %</th>
-            <th>Muscle (lb)</th>
-            <th>Notes</th>
-          </tr>
-          </thead>
-          <tbody id="history-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- DETAIL VIEW -->
-    <section id="section-detail" class="card hidden">
-      <div class="section-header-line">
-        <h2>Scan Details</h2>
-        <button id="btn-detail-close" class="secondary">Close</button>
-      </div>
-      <p id="detail-summary" class="hint"></p>
-
-      <div class="form-grid">
-        <div>
-          <h3>Measurements</h3>
-          <ul class="measurements-list" id="detail-measurements"></ul>
-          <h3>Notes</h3>
-          <p id="detail-notes"></p>
-        </div>
-        <div>
-          <h3>Photos</h3>
-          <div class="photo-grid">
-            <figure>
-              <img id="detail-front" alt="Front view" />
-              <figcaption>Front</figcaption>
-            </figure>
-            <figure>
-              <img id="detail-side" alt="Side view" />
-              <figcaption>Side</figcaption>
-            </figure>
-            <figure>
-              <img id="detail-back" alt="Back view" />
-              <figcaption>Back</figcaption>
-            </figure>
-            <figure>
-              <img id="detail-angle" alt="45° view" />
-              <figcaption>45°</figcaption>
-            </figure>
+              <div style="margin-top:0.9rem;">
+                <h3 style="font-size:0.95rem;margin-bottom:0.25rem;">Progress summary</h3>
+                <p class="muted" id="progress-summary">
+                  Once you have at least two scans, you'll see changes in weight, waist, and other key measurements here.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- PROFILE -->
-    <section id="section-profile" class="card hidden">
-      <div class="section-header-line">
-        <h2>Profile</h2>
-        <small class="hint">Used to calculate BMI and adjust the avatar shape.</small>
-      </div>
+        <!-- MINDSET REMINDER -->
+        <div class="card">
+          <h2>Mindset & accuracy reminder</h2>
+          <p class="card-subtitle">
+            This tool is here to support your fitness journey — not to judge it.
+          </p>
+          <ul class="list">
+            <li>All values are in <span class="highlight">imperial units</span> (lbs, inches).</li>
+            <li>
+              In the future, photos may be analyzed by AI to estimate body measurements.
+              Even then, results are estimates and
+              <span class="danger-text">may not be fully accurate</span>.
+            </li>
+            <li>
+              Use this app to track trends over time, not to obsess over single numbers.
+            </li>
+            <li>
+              Tape-measure checks every so often are a good way to validate any AI-based values.
+            </li>
+          </ul>
+        </div>
+      </section>
 
-      <form id="profile-form">
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="profile-height">Height (inches)</label>
-            <input type="number" id="profile-height" step="0.1" placeholder="in" />
+      <!-- NEW SCAN -->
+      <section id="view-scan" class="view">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:.55rem;">
+            <div>
+              <h2>New Scan</h2>
+              <p class="card-subtitle">
+                Enter your body measurements and optionally attach photos.
+              </p>
+            </div>
+            <span class="pill">Manual entry · Imperial</span>
           </div>
-          <div class="form-row">
-            <label for="profile-age">Age</label>
-            <input type="number" id="profile-age" />
+
+          <form id="scan-form">
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="scan-date">Date</label>
+                <input type="date" id="scan-date" name="scanDate" />
+              </div>
+
+              <div class="field">
+                <label for="weight-lb">Weight (lb)</label>
+                <input type="number" id="weight-lb" name="weightLb" min="0" step="0.1" placeholder="e.g. 185" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="shoulders-in">Shoulders (in)</label>
+                <input type="number" id="shoulders-in" name="shouldersIn" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="chest-in">Chest (in)</label>
+                <input type="number" id="chest-in" name="chestIn" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="waist-in">Waist (in)</label>
+                <input type="number" id="waist-in" name="waistIn" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="hips-in">Hips (in)</label>
+                <input type="number" id="hips-in" name="hipsIn" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="thighs-in">Thighs (in)</label>
+                <input type="number" id="thighs-in" name="thighsIn" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="calves-in">Calves (in)</label>
+                <input type="number" id="calves-in" name="calvesIn" min="0" step="0.1" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Progress photos (optional)</label>
+              <small>These aren't uploaded anywhere in this demo; they are just for future AI ideas.</small>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="photo-front">Front photo</label>
+                <input type="file" id="photo-front" name="photoFront" accept="image/*" />
+              </div>
+              <div class="field">
+                <label for="photo-side">Side photo</label>
+                <input type="file" id="photo-side" name="photoSide" accept="image/*" />
+              </div>
+              <div class="field">
+                <label for="photo-back">Back photo</label>
+                <input type="file" id="photo-back" name="photoBack" accept="image/*" />
+              </div>
+              <div class="field">
+                <label for="photo-45">45° photo</label>
+                <input type="file" id="photo-45" name="photo45" accept="image/*" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="scan-notes">Notes (optional)</label>
+              <textarea id="scan-notes" name="scanNotes" placeholder="Workout block, diet changes, how you felt, etc."></textarea>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.4rem;">
+              <button class="btn btn-primary" type="submit">Save scan</button>
+              <div class="badge-note">
+                <span class="icon">ℹ️</span>
+                <span>
+                  Future versions might auto-estimate measurements from photos using AI. This demo uses
+                  <span class="highlight">your manual inputs</span> only.
+                </span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="view-history" class="view">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:.55rem;">
+            <div>
+              <h2>History</h2>
+              <p class="card-subtitle">
+                All stored scans with key measurements in inches and weight in pounds.
+              </p>
+            </div>
+            <button class="btn btn-outline btn-sm" id="clear-history-btn">
+              Clear all scans
+            </button>
           </div>
-          <div class="form-row">
-            <label for="profile-sex">Sex</label>
-            <select id="profile-sex">
-              <option value="">Neutral / prefer not to say</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+
+          <div id="history-empty" class="muted">
+            No scans yet. Once you log scans, they will appear here.
+          </div>
+
+          <div id="history-table-wrapper" style="display:none;overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Weight (lb)</th>
+                  <th>Shoulders</th>
+                  <th>Chest</th>
+                  <th>Waist</th>
+                  <th>Hips</th>
+                  <th>Thighs</th>
+                  <th>Calves</th>
+                </tr>
+              </thead>
+              <tbody id="history-tbody"></tbody>
+            </table>
           </div>
         </div>
-        <div class="form-row">
-          <label for="profile-goal">Goal (optional)</label>
-          <input type="text" id="profile-goal" placeholder="Example: Lean 190 lb with visible abs" />
+      </section>
+
+      <!-- PROFILE -->
+      <section id="view-profile" class="view">
+        <div class="card">
+          <h2>Profile & goals</h2>
+          <p class="card-subtitle">
+            Basic info for this project. Right now this app is tuned for a single male profile.
+          </p>
+
+          <form id="profile-form">
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="profile-name">Name</label>
+                <input type="text" id="profile-name" name="profileName" placeholder="e.g. Robert" />
+              </div>
+
+              <div class="field">
+                <label for="profile-height">Height (in)</label>
+                <input type="number" id="profile-height" name="profileHeight" min="0" step="0.1" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="goal-weight">Goal weight (lb)</label>
+                <input type="number" id="goal-weight" name="goalWeight" min="0" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="goal-waist">Goal waist (in)</label>
+                <input type="number" id="goal-waist" name="goalWaist" min="0" step="0.1" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="profile-notes">Focus for this phase</label>
+              <textarea id="profile-notes" name="profileNotes" placeholder="Lean bulk, recomposition, cut, etc."></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="margin-top:0.4rem;">
+              Save profile
+            </button>
+          </form>
         </div>
-        <button type="submit" class="primary">Save Profile</button>
-      </form>
+      </section>
+    </main>
+  </div>
 
-      <h3>Mindset reminder</h3>
-      <p class="hint">
-        This app tracks numbers and photos, not your worth. If tracking ever makes you feel worse,
-        pause the data and focus on habits, sleep, and mental health first.
-        AI-generated measurements are estimates and may not be perfectly accurate, so always
-        treat them as approximations and double-check with a tape measure if precision matters.
-      </p>
-    </section>
-  </main>
+  <script>
+    // ---------- Simple in-browser "storage" ----------
+    const STORAGE_SCANS_KEY = "bodyScans";
+    const STORAGE_PROFILE_KEY = "bodyProfile";
 
-  <nav>
-    <div class="nav-inner">
-      <button class="nav-btn active" data-target="dashboard">
-        <span class="icon">📊</span>
-        Dashboard
-      </button>
-      <button class="nav-btn" data-target="newscan">
-        <span class="icon">➕</span>
-        New Scan
-      </button>
-      <button class="nav-btn" data-target="history">
-        <span class="icon">🕑</span>
-        History
-      </button>
-      <button class="nav-btn" data-target="profile">
-        <span class="icon">👤</span>
-        Profile
-      </button>
-    </div>
-  </nav>
-</div>
+    let scans = [];
+    let profile = {};
 
-<script>
-  // Backend endpoint (Render)
-  const API_URL = "https://ai-body-measurement-tracker.onrender.com/api/measure";
-
-  const STORAGE_SCANS   = "bodyscan_entries_v4";
-  const STORAGE_PROFILE = "bodyscan_profile_imperial_v1";
-
-  let scans = [];
-  let profile = {
-    heightIn: null,
-    age: null,
-    sex: "",
-    goal: ""
-  };
-
-  function loadData() {
-    const savedScans   = localStorage.getItem(STORAGE_SCANS);
-    const savedProfile = localStorage.getItem(STORAGE_PROFILE);
-
-    if (savedScans) {
-      try { scans = JSON.parse(savedScans); } catch { scans = []; }
-    }
-    if (savedProfile) {
-      try { profile = { ...profile, ...JSON.parse(savedProfile) }; } catch {}
-    }
-  }
-
-  function saveScans() {
-    localStorage.setItem(STORAGE_SCANS, JSON.stringify(scans));
-  }
-
-  function saveProfile() {
-    localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile));
-  }
-
-  function formatDelta(current, previous, goodWhenDown = true) {
-    if (previous == null || isNaN(previous) || previous === 0) return { text: "—", cls: "flat" };
-    if (current == null || isNaN(current)) return { text: "—", cls: "flat" };
-
-    const diff = current - previous;
-    const pct  = (diff / previous) * 100;
-    const rounded = pct.toFixed(1);
-
-    if (Math.abs(pct) < 0.1) return { text: "0.0%", cls: "flat" };
-
-    const arrow = pct < 0 ? "↓" : "↑";
-    const cls   = (pct < 0 && goodWhenDown) || (pct > 0 && !goodWhenDown) ? "down" : "up";
-
-    return { text: `${arrow} ${Math.abs(rounded)}%`, cls };
-  }
-
-  function computeBMI(weightLb, heightIn) {
-    if (!weightLb || !heightIn) return null;
-    return (703 * weightLb) / (heightIn * heightIn);
-  }
-
-  function shortNotes(notes) {
-    if (!notes) return "";
-    return notes.length > 35 ? notes.slice(0, 32) + "..." : notes;
-  }
-
-  function readFileAsDataURL(file) {
-    return new Promise((resolve) => {
-      if (!file) return resolve(null);
-      const reader = new FileReader();
-      reader.onload  = () => resolve(reader.result);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // ========== AVATAR (Gemini-based shape logic) ==========
-  function updateAvatar(measurements) {
-    const svg      = document.getElementById("avatar-svg");
-    const bodyPath = document.getElementById("body-path");
-    const armsPath = document.getElementById("arms-path");
-    const legsPath = document.getElementById("legs-path");
-
-    // Color based on sex
-    svg.classList.remove("avatar-neutral", "avatar-male", "avatar-female");
-    if (profile.sex === "male") svg.classList.add("avatar-male");
-    else if (profile.sex === "female") svg.classList.add("avatar-female");
-    else svg.classList.add("avatar-neutral");
-
-    const unitLabel = "in";
-
-    const setLabel = (id, name, value) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (value == null || isNaN(value)) el.textContent = `${name}: —`;
-      else el.textContent = `${name}: ${value} ${unitLabel}`;
-    };
-
-    if (!measurements) {
-      // Neutral outline
-      const neutralBody = "M24 33 Q40 27 56 33 L56 50 Q40 55 53 75 Q40 82 27 95 Q40 80 24 50 Z";
-      const neutralArms = "M24 34 L17 65 M56 34 L63 65";
-      const neutralLegs = "M32 95 L34 135 Q35 150 34 170 M48 95 L46 135 Q45 150 46 170";
-
-      bodyPath.setAttribute("d", neutralBody);
-      armsPath.setAttribute("d", neutralArms);
-      legsPath.setAttribute("d", neutralLegs);
-
-      ["shoulders","chest","waist","hips","thighs","calves"].forEach((k)=>{
-        setLabel("label-"+k, k.charAt(0).toUpperCase()+k.slice(1), null);
-      });
-
-      document.getElementById("avatar-measurements").textContent =
-        "Add a scan with measurements to see this body map update.";
-      return;
+    function loadState() {
+      try {
+        const scansRaw = localStorage.getItem(STORAGE_SCANS_KEY);
+        const profileRaw = localStorage.getItem(STORAGE_PROFILE_KEY);
+        scans = scansRaw ? JSON.parse(scansRaw) : [];
+        profile = profileRaw ? JSON.parse(profileRaw) : {};
+      } catch (e) {
+        scans = [];
+        profile = {};
+      }
     }
 
-    // Use measurements with defaults
-    const shoulders = measurements.shoulders ?? 47;
-    const chest     = measurements.chest     ?? 41;
-    const waist     = measurements.waist     ?? 35;
-    const hips      = measurements.hips      ?? 41;
-    const arms      = measurements.arms      ?? 14;
-    const thighs    = measurements.thighs    ?? 24;
-    const calves    = measurements.calves    ?? 16;
-
-    // base references
-    const BASE_HEIGHT_IN = 70;
-    const BASE_SHOULDERS = 47;
-
-    const overallWidthScale = shoulders / BASE_SHOULDERS;
-    const heightScale       = profile.heightIn ? profile.heightIn / BASE_HEIGHT_IN : 1;
-
-    // convert to half-widths in SVG units
-    const sW = (shoulders / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-    const cW = (chest     / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-    const wW = (waist     / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-    const hW = (hips      / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-    const tW = (thighs    / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-    const aW = (arms      / 2) * (80 / BASE_SHOULDERS) * overallWidthScale;
-
-    const cY   = 40 * heightScale;
-    const wY   = 70 * heightScale;
-    const hY   = 90 * heightScale;
-    const legY = 170 * heightScale;
-    const armY = 65 * heightScale;
-
-    // BODY PATH
-    const newBodyPath = `
-      M${40 - sW / 2} 33
-      Q40 27 ${40 + sW / 2} 33
-      L${40 + cW / 2} ${cY}
-      Q40 ${cY + 5} ${40 + wW / 2} ${wY}
-      L${40 + wW / 2} ${wY + 10}
-      Q40 ${hY} ${40 + hW / 2} ${hY - 5}
-      L${40 + hW / 2} ${hY + 5}
-      Q40 ${hY + 10} ${40 - hW / 2} ${hY - 5}
-      L${40 - wW / 2} ${wY + 10}
-      Q40 ${cY + 5} ${40 - cW / 2} ${cY}
-      L${40 - sW / 2} 33 Z
-    `;
-    bodyPath.setAttribute("d", newBodyPath);
-
-    // ARMS PATH
-    const newArmsPath = `
-      M${40 - sW / 2} 34 L${40 - sW / 2 - aW / 4} ${armY}
-      M${40 + sW / 2} 34 L${40 + sW / 2 + aW / 4} ${armY}
-    `;
-    armsPath.setAttribute("d", newArmsPath);
-
-    // LEGS PATH
-    const legInset = Math.max(5, 25 - tW / 4);
-    const newLegsPath = `
-      M${40 - hW / 2 + legInset} ${hY + 5} L${40 - hW / 2 + legInset} ${legY}
-      M${40 + hW / 2 - legInset} ${hY + 5} L${40 + hW / 2 - legInset} ${legY}
-    `;
-    legsPath.setAttribute("d", newLegsPath);
-
-    // LABELS
-    setLabel("label-shoulders", "Shoulders", shoulders);
-    setLabel("label-chest",     "Chest",     chest);
-    setLabel("label-waist",     "Waist",     waist);
-    setLabel("label-hips",      "Hips",      hips);
-    setLabel("label-thighs",    "Thighs",    thighs);
-    setLabel("label-calves",    "Calves",    calves);
-
-    const parts = [];
-    if (waist != null) parts.push(`waist ${waist} ${unitLabel}`);
-    if (chest != null) parts.push(`chest ${chest} ${unitLabel}`);
-    if (hips  != null) parts.push(`hips ${hips} ${unitLabel}`);
-
-    document.getElementById("avatar-measurements").textContent =
-      parts.length ? `Silhouette shaped from ${parts.join(" · ")}.` :
-      "Body map updated from your latest scan.";
-  }
-
-  // ========== DASHBOARD / HISTORY / PROFILE RENDERING ==========
-
-  function renderDashboard() {
-    const lastScanText = document.getElementById("last-scan-text");
-    const metricsGrid  = document.getElementById("metrics-grid");
-    const summary      = document.getElementById("progress-summary");
-
-    if (!scans.length) {
-      lastScanText.textContent = "No scans yet. Add your first scan to get started.";
-      metricsGrid.innerHTML    = "";
-      summary.textContent      =
-        "Once you have at least two scans, you'll see changes in weight, waist, and body fat here.";
-      updateAvatar(null);
-      return;
+    function saveState() {
+      localStorage.setItem(STORAGE_SCANS_KEY, JSON.stringify(scans));
+      localStorage.setItem(STORAGE_PROFILE_KEY, JSON.stringify(profile));
     }
 
-    const sorted   = [...scans].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const latest   = sorted[0];
-    const previous = sorted[1] || null;
+    // ---------- Avatar / measurement visualization ----------
 
-    lastScanText.textContent = `Last scan: ${latest.date}${latest.time ? " · "+latest.time : ""}`;
+    function updateAvatar(measurements) {
+      const svg   = document.getElementById("measurement-overlay-svg");
+      const bgImg = document.getElementById("avatar-background");
 
-    const weightUnit = "lb";
+      // Always use the male avatar image
+      bgImg.src = "avatar-male.png";
 
-    const bmiLatest = computeBMI(latest.weight, profile.heightIn);
-    const bmiPrev   = previous ? computeBMI(previous.weight, profile.heightIn) : null;
+      // Clear previous lines/dots
+      svg.innerHTML = "";
 
-    const weightDelta = formatDelta(latest.weight, previous?.weight, true);
-    const bfDelta     = formatDelta(latest.bodyFat, previous?.bodyFat, true);
-    const mmDelta     = formatDelta(latest.muscle, previous?.muscle, false);
-    const bmiDelta    = formatDelta(bmiLatest, bmiPrev, true);
+      const unitLabel = "in";
+      const lineColor = "#38bdf8";
 
-    metricsGrid.innerHTML = `
-      <div class="metric-card">
-        <h4>Weight</h4>
-        <div class="value">${latest.weight ?? "—"}<span class="unit">${latest.weight != null ? " "+weightUnit : ""}</span></div>
-        <div class="delta ${weightDelta.cls}">${weightDelta.text}</div>
-      </div>
-      <div class="metric-card">
-        <h4>Body fat</h4>
-        <div class="value">${latest.bodyFat ?? "—"}<span class="unit">${latest.bodyFat != null ? " %" : ""}</span></div>
-        <div class="delta ${bfDelta.cls}">${bfDelta.text}</div>
-      </div>
-      <div class="metric-card">
-        <h4>Muscle mass</h4>
-        <div class="value">${latest.muscle ?? "—"}<span class="unit">${latest.muscle != null ? " "+weightUnit : ""}</span></div>
-        <div class="delta ${mmDelta.cls}">${mmDelta.text}</div>
-      </div>
-      <div class="metric-card">
-        <h4>BMI</h4>
-        <div class="value">${bmiLatest != null ? bmiLatest.toFixed(1) : "—"}</div>
-        <div class="delta ${bmiDelta.cls}">${bmiDelta.text}</div>
-      </div>
-    `;
+      const setLabel = (id, name, value) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (value == null || isNaN(value)) {
+          el.textContent = name + ": —";
+        } else {
+          el.textContent = `${name}: ${value} ${unitLabel}`;
+        }
+      };
 
-    summary.textContent = previous
-      ? `You have ${scans.length} total scans. Changes reflect the difference since your previous scan.`
-      : "You only have one scan so far. As you add more, you'll see trends in your metrics here.";
-
-    updateAvatar(latest.measurements);
-  }
-
-  function renderHistory() {
-    const tbody = document.getElementById("history-body");
-    tbody.innerHTML = "";
-
-    if (!scans.length) {
-      const tr = document.createElement("tr");
-      tr.classList.add("empty-row");
-      const td = document.createElement("td");
-      td.colSpan = 12;
-      td.textContent = "No scans yet.";
-      tr.appendChild(td);
-      tbody.appendChild(tr);
-      return;
-    }
-
-    [...scans]
-      .sort((a,b)=>new Date(b.date)-new Date(a.date))
-      .forEach(scan => {
-        const m = scan.measurements || {};
-        const tr = document.createElement("tr");
-        tr.dataset.id = scan.id;
-        tr.innerHTML = `
-          <td>${scan.date}</td>
-          <td>${scan.weight != null ? scan.weight+" lb" : ""}</td>
-          <td>${m.chest     != null ? m.chest     : ""}</td>
-          <td>${m.shoulders != null ? m.shoulders : ""}</td>
-          <td>${m.waist     != null ? m.waist     : ""}</td>
-          <td>${m.hips      != null ? m.hips      : ""}</td>
-          <td>${m.arms      != null ? m.arms      : ""}</td>
-          <td>${m.thighs    != null ? m.thighs    : ""}</td>
-          <td>${m.calves    != null ? m.calves    : ""}</td>
-          <td>${scan.bodyFat != null ? scan.bodyFat+"%" : ""}</td>
-          <td>${scan.muscle  != null ? scan.muscle+" lb" : ""}</td>
-          <td>${shortNotes(scan.notes)}</td>
-        `;
-        tr.addEventListener("click", () => showDetail(scan.id));
-        tbody.appendChild(tr);
-      });
-  }
-
-  function showDetail(id) {
-    const scan = scans.find(s => s.id === id);
-    if (!scan) return;
-
-    document.getElementById("section-detail").classList.remove("hidden");
-
-    const bmi = computeBMI(scan.weight, profile.heightIn);
-    const summary =
-      `${scan.date}${scan.time ? " · "+scan.time : ""} · ` +
-      `${scan.weight != null ? scan.weight+" lb" : "no weight entered"}` +
-      `${bmi != null ? " · BMI "+bmi.toFixed(1) : ""}`;
-
-    document.getElementById("detail-summary").textContent = summary;
-
-    const m = scan.measurements || {};
-    const list = document.getElementById("detail-measurements");
-    list.innerHTML = `
-      <li>Shoulders: ${m.shoulders != null ? m.shoulders+" in" : "—"}</li>
-      <li>Chest: ${m.chest != null ? m.chest+" in" : "—"}</li>
-      <li>Waist: ${m.waist != null ? m.waist+" in" : "—"}</li>
-      <li>Hips: ${m.hips != null ? m.hips+" in" : "—"}</li>
-      <li>Arms: ${m.arms != null ? m.arms+" in" : "—"}</li>
-      <li>Thighs: ${m.thighs != null ? m.thighs+" in" : "—"}</li>
-      <li>Calves: ${m.calves != null ? m.calves+" in" : "—"}</li>
-    `;
-
-    document.getElementById("detail-notes").textContent = scan.notes || "—";
-
-    document.getElementById("detail-front").src  = scan.photos.front  || "";
-    document.getElementById("detail-side").src   = scan.photos.side   || "";
-    document.getElementById("detail-back").src   = scan.photos.back   || "";
-    document.getElementById("detail-angle").src  = scan.photos.angle  || "";
-  }
-
-  function hideDetail() {
-    document.getElementById("section-detail").classList.add("hidden");
-  }
-
-  function renderProfile() {
-    document.getElementById("profile-height").value = profile.heightIn ?? "";
-    document.getElementById("profile-age").value    = profile.age ?? "";
-    document.getElementById("profile-sex").value    = profile.sex ?? "";
-    document.getElementById("profile-goal").value   = profile.goal ?? "";
-  }
-
-  function showSection(name) {
-    const sections = {
-      dashboard: "section-dashboard",
-      newscan:   "section-newscan",
-      history:   "section-history",
-      profile:   "section-profile"
-    };
-
-    Object.values(sections).forEach(id => {
-      document.getElementById(id).classList.add("hidden");
-    });
-
-    if (sections[name]) {
-      document.getElementById(sections[name]).classList.remove("hidden");
-    }
-
-    if (name !== "history") hideDetail();
-
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.target === name);
-    });
-
-    if (name === "dashboard") renderDashboard();
-    if (name === "history")   renderHistory();
-    if (name === "profile")   renderProfile();
-  }
-
-  // ========== AI PHOTO ANALYSIS ==========
-
-  async function analyzePhotosWithAI() {
-    const aiStatus = document.getElementById("ai-status");
-    aiStatus.textContent = "";
-    const btn = document.getElementById("btn-ai-analyze");
-    btn.disabled = true;
-
-    try {
-      const heightIn = profile.heightIn;
-      const weight   = parseFloat(document.getElementById("scan-weight").value);
-
-      const front = document.getElementById("photo-front").files[0];
-      const side  = document.getElementById("photo-side").files[0];
-      const back  = document.getElementById("photo-back").files[0];
-      const angle = document.getElementById("photo-angle").files[0];
-
-      if (!front || !side) {
-        aiStatus.textContent = "AI needs at least front and side photos.";
-        btn.disabled = false;
+      if (!measurements) {
+        bgImg.style.opacity = "0.4";
+        ["shoulders", "chest", "waist", "hips", "thighs", "calves"].forEach((k) =>
+          setLabel("label-" + k, k.charAt(0).toUpperCase() + k.slice(1), null)
+        );
+        const msgEl = document.getElementById("avatar-measurements");
+        if (msgEl) {
+          msgEl.textContent =
+            "Add a scan with measurements to see this body map update.";
+        }
         return;
       }
 
-      if (!heightIn) {
-        aiStatus.textContent = "Add your height in Profile for better estimates.";
-      } else {
-        aiStatus.textContent = "Sending photos to AI…";
+      bgImg.style.opacity = "0.8";
+
+      const LINE_POSITIONS = {
+        shoulders: { Y: 18, X_START: 18, X_END: 82 },
+        chest:     { Y: 30, X_START: 20, X_END: 80 },
+        waist:     { Y: 46, X_START: 22, X_END: 78 },
+        hips:      { Y: 58, X_START: 22, X_END: 78 },
+        thighs:    { Y: 74, X_START: 24, X_END: 76 },
+        calves:    { Y: 86, X_START: 28, X_END: 72 },
+      };
+
+      const drawLine = (name, value) => {
+        if (value == null || isNaN(value)) return;
+        const pos = LINE_POSITIONS[name];
+        if (!pos) return;
+
+        const ns = "http://www.w3.org/2000/svg";
+
+        const line = document.createElementNS(ns, "line");
+        line.setAttribute("x1", pos.X_START + "%");
+        line.setAttribute("y1", pos.Y + "%");
+        line.setAttribute("x2", pos.X_END + "%");
+        line.setAttribute("y2", pos.Y + "%");
+        line.setAttribute("stroke", lineColor);
+        line.setAttribute("stroke-width", "0.8");
+        line.setAttribute("stroke-linecap", "round");
+        line.setAttribute("stroke-dasharray", "3 2");
+
+        const dot1 = document.createElementNS(ns, "circle");
+        dot1.setAttribute("cx", pos.X_START + "%");
+        dot1.setAttribute("cy", pos.Y + "%");
+        dot1.setAttribute("r", "1.2");
+        dot1.setAttribute("fill", lineColor);
+
+        const dot2 = document.createElementNS(ns, "circle");
+        dot2.setAttribute("cx", pos.X_END + "%");
+        dot2.setAttribute("cy", pos.Y + "%");
+        dot2.setAttribute("r", "1.2");
+        dot2.setAttribute("fill", lineColor);
+
+        svg.appendChild(line);
+        svg.appendChild(dot1);
+        svg.appendChild(dot2);
+      };
+
+      drawLine("shoulders", measurements.shoulders);
+      drawLine("chest",     measurements.chest);
+      drawLine("waist",     measurements.waist);
+      drawLine("hips",      measurements.hips);
+      drawLine("thighs",    measurements.thighs);
+      drawLine("calves",    measurements.calves);
+
+      setLabel("label-shoulders", "Shoulders", measurements.shoulders);
+      setLabel("label-chest",     "Chest",     measurements.chest);
+      setLabel("label-waist",     "Waist",     measurements.waist);
+      setLabel("label-hips",      "Hips",      measurements.hips);
+      setLabel("label-thighs",    "Thighs",    measurements.thighs);
+      setLabel("label-calves",    "Calves",    measurements.calves);
+
+      const parts = [];
+      if (measurements.waist != null) parts.push(`waist ${measurements.waist} ${unitLabel}`);
+      if (measurements.chest != null) parts.push(`chest ${measurements.chest} ${unitLabel}`);
+      if (measurements.hips  != null) parts.push(`hips ${measurements.hips} ${unitLabel}`);
+
+      const msgEl = document.getElementById("avatar-measurements");
+      if (msgEl) {
+        msgEl.textContent =
+          parts.length
+            ? `Body map visualized from ${parts.join(" · ")}.`
+            : "Body map updated from your latest scan.";
+      }
+    }
+
+    // ---------- Dashboard metrics & history rendering ----------
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function updateDashboard() {
+      const subtitleEl = document.getElementById("dashboard-subtitle");
+      const metricsContainer = document.getElementById("latest-metric-pills");
+      const progressEl = document.getElementById("progress-summary");
+
+      metricsContainer.innerHTML = "";
+
+      if (!scans.length) {
+        subtitleEl.textContent = "No scans yet. Add your first scan to get started.";
+        metricsContainer.innerHTML = '<span class="muted">No data yet.</span>';
+        progressEl.textContent =
+          "Once you have at least two scans, you'll see changes in weight, waist, and other key measurements here.";
+        updateAvatar(null);
+        return;
       }
 
-      const formData = new FormData();
-      if (heightIn) formData.append("height", heightIn);
-      if (!isNaN(weight)) formData.append("weight", weight);
-      formData.append("front", front);
-      formData.append("side",  side);
-      if (back)  formData.append("back",  back);
-      if (angle) formData.append("angle", angle);
+      const latest = scans[scans.length - 1];
+      subtitleEl.textContent = `Last scan: ${formatDate(latest.date)}`;
 
-      const resp = await fetch(API_URL, { method: "POST", body: formData });
-      if (!resp.ok) throw new Error("Server error: " + (await resp.text()));
+      const createPill = (label, value, unit, deltaValue) => {
+        const span = document.createElement("span");
+        span.className = "metric-pill";
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = label;
+        const valueSpan = document.createElement("span");
+        valueSpan.className = "value";
+        valueSpan.textContent = value != null ? `${value} ${unit}` : "—";
+        span.appendChild(labelSpan);
+        span.appendChild(valueSpan);
 
-      const data = await resp.json();
-      if (!data.ok) throw new Error(data.error || "AI measurement failed.");
+        if (deltaValue != null && !Number.isNaN(deltaValue) && deltaValue !== 0) {
+          const deltaSpan = document.createElement("span");
+          deltaSpan.className = deltaValue < 0 ? "delta-neg" : "delta-pos";
+          const sign = deltaValue > 0 ? "+" : "";
+          deltaSpan.textContent = `(${sign}${deltaValue.toFixed(1)})`;
+          span.appendChild(deltaSpan);
+        }
 
-      if (data.chest  != null) document.getElementById("measure-chest").value   = data.chest;
-      if (data.waist  != null) document.getElementById("measure-waist").value   = data.waist;
-      if (data.hips   != null) document.getElementById("measure-hips").value    = data.hips;
-      if (data.thigh  != null) document.getElementById("measure-thighs").value  = data.thigh;
-      if (data.arm    != null) document.getElementById("measure-arms").value    = data.arm;
-      // shoulders & calves can be added later as the model improves
+        return span;
+      };
 
-      aiStatus.textContent =
-        "AI filled in some measurements. These are estimates only — review and adjust if needed.";
-    } catch (err) {
-      console.error(err);
-      aiStatus.textContent = "AI error: " + err.message;
-    } finally {
-      btn.disabled = false;
+      let first = scans[0];
+      const deltaWeight = (latest.weightLb ?? null) != null && (first.weightLb ?? null) != null
+        ? latest.weightLb - first.weightLb
+        : null;
+      const deltaWaist = (latest.waistIn ?? null) != null && (first.waistIn ?? null) != null
+        ? latest.waistIn - first.waistIn
+        : null;
+
+      metricsContainer.appendChild(
+        createPill("Weight", latest.weightLb ?? null, "lb", deltaWeight)
+      );
+      metricsContainer.appendChild(
+        createPill("Waist", latest.waistIn ?? null, "in", deltaWaist)
+      );
+      metricsContainer.appendChild(
+        createPill("Chest", latest.chestIn ?? null, "in", null)
+      );
+      metricsContainer.appendChild(
+        createPill("Shoulders", latest.shouldersIn ?? null, "in", null)
+      );
+
+      if (scans.length >= 2 && deltaWeight != null && deltaWaist != null) {
+        const directionWeight = deltaWeight < 0 ? "down" : deltaWeight > 0 ? "up" : "unchanged";
+        const directionWaist = deltaWaist < 0 ? "down" : deltaWaist > 0 ? "up" : "unchanged";
+        progressEl.textContent =
+          `From first to latest scan: weight is ${directionWeight} ` +
+          `${deltaWeight.toFixed(1)} lb and waist is ${directionWaist} ` +
+          `${Math.abs(deltaWaist).toFixed(1)} in.`;
+      } else {
+        progressEl.textContent =
+          "Once you have at least two scans, you'll see changes in weight and waist over time.";
+      }
+
+      updateAvatar({
+        shoulders: latest.shouldersIn,
+        chest:     latest.chestIn,
+        waist:     latest.waistIn,
+        hips:      latest.hipsIn,
+        thighs:    latest.thighsIn,
+        calves:    latest.calvesIn
+      });
     }
-  }
 
-  // ========== FORM HANDLERS ==========
+    function updateHistoryView() {
+      const emptyEl = document.getElementById("history-empty");
+      const tableWrapper = document.getElementById("history-table-wrapper");
+      const tbody = document.getElementById("history-tbody");
 
-  async function handleNewScan(event) {
-    event.preventDefault();
+      if (!scans.length) {
+        emptyEl.style.display = "block";
+        tableWrapper.style.display = "none";
+        return;
+      }
 
-    const date = document.getElementById("scan-date").value;
-    if (!date) {
-      alert("Please enter a date.");
-      return;
+      emptyEl.style.display = "none";
+      tableWrapper.style.display = "block";
+      tbody.innerHTML = "";
+
+      scans.forEach(scan => {
+        const tr = document.createElement("tr");
+        const cells = [
+          formatDate(scan.date),
+          scan.weightLb != null ? scan.weightLb.toFixed(1) : "—",
+          scan.shouldersIn ?? "—",
+          scan.chestIn ?? "—",
+          scan.waistIn ?? "—",
+          scan.hipsIn ?? "—",
+          scan.thighsIn ?? "—",
+          scan.calvesIn ?? "—"
+        ];
+        cells.forEach(text => {
+          const td = document.createElement("td");
+          td.textContent = text;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
     }
 
-    const time    = document.getElementById("scan-time").value.trim() || null;
-    const weight  = parseFloat(document.getElementById("scan-weight").value);
-    const bodyFat = parseFloat(document.getElementById("scan-bodyfat").value);
-    const muscle  = parseFloat(document.getElementById("scan-muscle").value);
+    function populateProfileForm() {
+      const nameEl = document.getElementById("profile-name");
+      const heightEl = document.getElementById("profile-height");
+      const goalWeightEl = document.getElementById("goal-weight");
+      const goalWaistEl = document.getElementById("goal-waist");
+      const notesEl = document.getElementById("profile-notes");
 
-    const chest     = parseFloat(document.getElementById("measure-chest").value);
-    const shoulders = parseFloat(document.getElementById("measure-shoulders").value);
-    const waist     = parseFloat(document.getElementById("measure-waist").value);
-    const hips      = parseFloat(document.getElementById("measure-hips").value);
-    const arms      = parseFloat(document.getElementById("measure-arms").value);
-    const thighs    = parseFloat(document.getElementById("measure-thighs").value);
-    const calves    = parseFloat(document.getElementById("measure-calves").value);
+      nameEl.value = profile.name ?? "";
+      heightEl.value = profile.heightIn ?? "";
+      goalWeightEl.value = profile.goalWeight ?? "";
+      goalWaistEl.value = profile.goalWaist ?? "";
+      notesEl.value = profile.notes ?? "";
+    }
 
-    const notes = document.getElementById("scan-notes").value.trim();
+    // ---------- Event wiring ----------
 
-    const frontFile = document.getElementById("photo-front").files[0];
-    const sideFile  = document.getElementById("photo-side").files[0];
-    const backFile  = document.getElementById("photo-back").files[0];
-    const angleFile = document.getElementById("photo-angle").files[0];
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      updateDashboard();
+      updateHistoryView();
+      populateProfileForm();
 
-    const [front, side, back, angle] = await Promise.all([
-      readFileAsDataURL(frontFile),
-      readFileAsDataURL(sideFile),
-      readFileAsDataURL(backFile),
-      readFileAsDataURL(angleFile)
-    ]);
+      // nav
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.view;
+          document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+          document.getElementById("view-" + target).classList.add("active");
+        });
+      });
 
-    const scan = {
-      id: Date.now().toString(),
-      date,
-      time,
-      weight:  isNaN(weight)  ? null : weight,
-      bodyFat: isNaN(bodyFat) ? null : bodyFat,
-      muscle:  isNaN(muscle)  ? null : muscle,
-      measurements: {
-        chest:     isNaN(chest)     ? null : chest,
-        shoulders: isNaN(shoulders) ? null : shoulders,
-        waist:     isNaN(waist)     ? null : waist,
-        hips:      isNaN(hips)      ? null : hips,
-        arms:      isNaN(arms)      ? null : arms,
-        thighs:    isNaN(thighs)    ? null : thighs,
-        calves:    isNaN(calves)    ? null : calves
-      },
-      notes,
-      photos: { front, side, back, angle }
-    };
+      const gotoNewScanBtn = document.getElementById("goto-new-scan");
+      if (gotoNewScanBtn) {
+        gotoNewScanBtn.addEventListener("click", () => {
+          document.querySelector('.nav-tab[data-view="scan"]').click();
+        });
+      }
 
-    scans.push(scan);
-    saveScans();
+      // new scan form
+      const scanForm = document.getElementById("scan-form");
+      const scanDateInput = document.getElementById("scan-date");
+      if (scanDateInput && !scanDateInput.value) {
+        const today = new Date().toISOString().slice(0, 10);
+        scanDateInput.value = today;
+      }
 
-    event.target.reset();
-    document.getElementById("scan-date").value = date; // keep same date for convenience
-    document.getElementById("ai-status").textContent = "";
+      scanForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-    renderDashboard();
-    showSection("dashboard");
-  }
+        const formData = new FormData(scanForm);
+        const scan = {
+          id: Date.now(),
+          date: formData.get("scanDate") || new Date().toISOString(),
+          weightLb: parseFloat(formData.get("weightLb")) || null,
+          shouldersIn: parseFloat(formData.get("shouldersIn")) || null,
+          chestIn: parseFloat(formData.get("chestIn")) || null,
+          waistIn: parseFloat(formData.get("waistIn")) || null,
+          hipsIn: parseFloat(formData.get("hipsIn")) || null,
+          thighsIn: parseFloat(formData.get("thighsIn")) || null,
+          calvesIn: parseFloat(formData.get("calvesIn")) || null,
+          notes: formData.get("scanNotes") || ""
+        };
 
-  function handleProfileSave(event) {
-    event.preventDefault();
+        scans.push(scan);
+        saveState();
+        updateDashboard();
+        updateHistoryView();
 
-    const h = parseFloat(document.getElementById("profile-height").value);
-    const a = parseInt(document.getElementById("profile-age").value, 10);
+        alert("Scan saved!");
+        scanForm.reset();
+        const today = new Date().toISOString().slice(0, 10);
+        scanDateInput.value = today;
 
-    profile.heightIn = isNaN(h) ? null : h;
-    profile.age      = isNaN(a) ? null : a;
-    profile.sex      = document.getElementById("profile-sex").value || "";
-    profile.goal     = document.getElementById("profile-goal").value.trim();
+        document.querySelector('.nav-tab[data-view="dashboard"]').click();
+      });
 
-    saveProfile();
-    alert("Profile saved.");
-    renderDashboard();
-  }
+      // clear history
+      const clearBtn = document.getElementById("clear-history-btn");
+      clearBtn.addEventListener("click", () => {
+        if (!scans.length) return;
+        if (confirm("Clear all stored scans? This cannot be undone.")) {
+          scans = [];
+          saveState();
+          updateDashboard();
+          updateHistoryView();
+        }
+      });
 
-  // ========== INIT ==========
-
-  document.addEventListener("DOMContentLoaded", () => {
-    loadData();
-    renderDashboard();
-    renderProfile();
-    renderHistory();
-
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.addEventListener("click", () => showSection(btn.dataset.target));
+      // profile form
+      const profileForm = document.getElementById("profile-form");
+      profileForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        profile = {
+          name: document.getElementById("profile-name").value || "",
+          heightIn: parseFloat(document.getElementById("profile-height").value) || null,
+          goalWeight: parseFloat(document.getElementById("goal-weight").value) || null,
+          goalWaist: parseFloat(document.getElementById("goal-waist").value) || null,
+          notes: document.getElementById("profile-notes").value || ""
+        };
+        saveState();
+        alert("Profile saved.");
+      });
     });
-
-    document.getElementById("btn-dashboard-newscan")
-      .addEventListener("click", () => showSection("newscan"));
-
-    document.getElementById("scan-form")
-      .addEventListener("submit", handleNewScan);
-
-    document.getElementById("profile-form")
-      .addEventListener("submit", handleProfileSave);
-
-    document.getElementById("btn-detail-close")
-      .addEventListener("click", hideDetail);
-
-    document.getElementById("btn-ai-analyze")
-      .addEventListener("click", analyzePhotosWithAI);
-
-    const today = new Date().toISOString().split("T")[0];
-    document.getElementById("scan-date").value = today;
-  });
-</script>
+  </script>
 </body>
 </html>
